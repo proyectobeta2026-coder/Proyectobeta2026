@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ff5a36" />
+    <title>RapiYa App</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body data-page="app">
+    <div id="app-container" class="app-container">
+      <section id="view-lobby" class="view active">
+        <header class="top-bar">
+          <button class="location-selector" id="btn-location" type="button" aria-label="Cambiar ubicación de entrega">
+            <i class="fa-solid fa-location-dot"></i>
+            <span id="location-label">Selecciona tu ciudad</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+
+          <div class="top-actions">
+            <button class="icon-btn" id="btn-historial" title="Mis pedidos">
+              <i class="fa-solid fa-clipboard-list"></i>
+            </button>
+            <button class="icon-btn cart-badge" id="btn-carrito" title="Carrito">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <span id="cart-count">0</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="search-section">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="input-buscar" placeholder="Busca tu comida favorita" />
+            <button class="search-btn" id="search-btn">Buscar</button>
+          </div>
+        </div>
+
+        <div class="hero-banner">
+          <div class="banner-content">
+            <span class="banner-tag">¡30% OFF</span>
+            <h2>En tu primer pedido<br />con RapiYa</h2>
+            <button class="banner-cta" type="button">Pide ahora</button>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80"
+            alt="Promo de pizza"
+          />
+        </div>
+
+        <div id="categories" class="categories-container"></div>
+        <div id="restaurantes-grid" class="grid-container"></div>
+      </section>
+
+      <section id="view-restaurant" class="view">
+        <div id="store-header" class="store-header">
+          <div class="store-nav-actions">
+            <button class="circle-btn" id="back-to-lobby" type="button">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="right-actions">
+              <button class="circle-btn" type="button">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+              <button class="circle-btn" id="btn-favorite-restaurant" type="button" aria-label="Agregar restaurante a favoritos">
+                <i class="fa-regular fa-heart"></i>
+              </button>
+              <button class="circle-btn" type="button">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="store-profile-card">
+          <div class="store-badges">
+            <span class="badge-top"><i class="fa-solid fa-medal"></i> RapiYa Top</span>
+            <span class="badge-recompras"><i class="fa-solid fa-fire"></i> +500 pedidos</span>
+          </div>
+
+          <div class="store-title-row">
+            <img id="store-logo" class="store-logo" alt="Logo del restaurante" />
+            <div>
+              <h2 id="store-name">Restaurante</h2>
+              <p id="store-meta">Cargando...</p>
+            </div>
+          </div>
+
+          <div class="delivery-info-bar">
+            <span id="store-delivery">Entrega a domicilio</span>
+            <span id="store-price" class="price-domi">$0</span>
+          </div>
+
+          <div class="promo-shipping-banner">
+            <i class="fa-solid fa-bicycle"></i>
+            <span id="store-promo">Envío gratis por compras mayores a $35k</span>
+          </div>
+        </div>
+
+        <div class="menu-section">
+          <div class="section-header">
+            <h3>Menú destacado</h3>
+            <span id="menu-count">0 platos</span>
+          </div>
+          <div id="platos-container" class="dishes-list"></div>
+        </div>
+      </section>
+
+      <section id="view-favorites" class="view">
+        <div class="secondary-page-shell">
+          <div class="page-heading">
+            <span class="eyebrow small">Tu selección</span>
+            <h2>Favoritos</h2>
+          </div>
+          <div class="segmented-control" role="group" aria-label="Tipo de favorito">
+            <button class="segment active" type="button" data-favorites-type="restaurante">Restaurantes</button>
+            <button class="segment" type="button" data-favorites-type="producto">Productos</button>
+          </div>
+          <div id="favorites-content" class="saved-items"></div>
+        </div>
+      </section>
+
+      <section id="view-orders" class="view">
+        <div class="secondary-page-shell">
+          <div class="page-heading">
+            <span class="eyebrow small">Actividad</span>
+            <h2>Pedidos</h2>
+          </div>
+          <div id="orders-content" class="empty-state"></div>
+        </div>
+      </section>
+
+      <section id="view-profile" class="view">
+        <div class="secondary-page-shell">
+          <div class="page-heading">
+            <span class="eyebrow small">RapiYa</span>
+            <h2>Perfil</h2>
+          </div>
+          <form id="account-auth-form" class="account-panel">
+            <div class="field-group">
+              <label for="account-email">Correo electrónico</label>
+              <input id="account-email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field-group">
+              <label for="account-password">Contraseña</label>
+              <input id="account-password" type="password" autocomplete="current-password" minlength="8" required />
+            </div>
+            <div id="signup-fields" class="signup-fields" hidden>
+              <div class="field-group">
+                <label for="account-name">Nombre completo</label>
+                <input id="account-name" type="text" autocomplete="name" minlength="2" maxlength="120" />
+              </div>
+              <div class="field-group">
+                <label for="account-phone">Teléfono (opcional)</label>
+                <input id="account-phone" type="tel" autocomplete="tel" maxlength="30" placeholder="+57 300 000 0000" />
+              </div>
+              <label class="consent-field">
+                <input id="accept-terms" type="checkbox" />
+                <span>Acepto los términos del servicio (versión v1.0).</span>
+              </label>
+              <label class="consent-field">
+                <input id="acknowledge-privacy" type="checkbox" />
+                <span>Confirmo que leí el aviso de privacidad (versión v1.0).</span>
+              </label>
+              <p class="legal-note">Publica los textos legales definitivos antes de habilitar registros de producción.</p>
+            </div>
+            <div id="merchant-signup-fields" class="signup-fields" hidden>
+              <div class="field-group">
+                <label for="merchant-name">Nombre del restaurante</label>
+                <input id="merchant-name" type="text" maxlength="120" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-category">Categoría</label>
+                <input id="merchant-category" type="text" maxlength="80" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-whatsapp">WhatsApp con código de país</label>
+                <input id="merchant-whatsapp" type="tel" maxlength="20" placeholder="573001234567" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-city">Ciudad / municipio</label>
+                <input id="merchant-city" type="text" maxlength="100" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-department">Departamento</label>
+                <input id="merchant-department" type="text" maxlength="100" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-country">País</label>
+                <input id="merchant-country" type="text" maxlength="100" value="Colombia" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-address">Dirección del restaurante</label>
+                <input id="merchant-address" type="text" maxlength="400" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-logo">URL HTTPS del logo (opcional)</label>
+                <input id="merchant-logo" type="url" maxlength="2000" />
+              </div>
+              <div class="field-group">
+                <label for="merchant-cover">URL HTTPS de portada (opcional)</label>
+                <input id="merchant-cover" type="url" maxlength="2000" />
+              </div>
+            </div>
+            <div class="account-actions">
+              <button id="btn-login-user" class="primary-btn" type="submit" data-auth-action="login">Iniciar sesión</button>
+              <button class="secondary-btn" type="button" id="btn-signup-user">Crear cuenta de comprador</button>
+              <button class="secondary-btn" type="button" id="btn-signup-merchant">Registrar mi restaurante</button>
+              <button class="primary-btn" type="submit" id="btn-create-account" data-auth-action="signup" hidden>Registrarme</button>
+              <button class="primary-btn" type="submit" id="btn-create-merchant" data-auth-action="signup-merchant" hidden>Enviar solicitud</button>
+              <button class="secondary-btn" type="button" id="btn-back-login" hidden>Volver a iniciar sesión</button>
+              <button class="secondary-btn" type="button" id="btn-reset-password">Olvidé mi contraseña</button>
+            </div>
+            <p id="account-message" class="login-message" aria-live="polite"></p>
+          </form>
+          <div id="account-details" class="account-panel" hidden>
+            <p id="account-email-label" class="account-email"></p>
+            <p id="account-role-label" class="account-role"></p>
+            <button id="btn-open-merchant-panel" class="primary-btn" type="button" hidden>Abrir panel del restaurante</button>
+            <section id="admin-preview-actions" class="admin-preview-actions" hidden>
+              <h3>Previsualizar la aplicación</h3>
+              <p>Alterna entre la experiencia del cliente y el panel de un restaurante en modo de solo lectura.</p>
+              <button id="btn-admin-preview-customer" class="secondary-btn" type="button">Ver vista de cliente</button>
+              <button id="btn-admin-preview-restaurant" class="primary-btn" type="button">Ver vista de restaurante</button>
+            </section>
+            <button id="btn-signout-user" class="secondary-btn" type="button">Cerrar sesión</button>
+          </div>
+          <section id="admin-applications" class="account-panel" hidden>
+            <h3>Solicitudes de restaurantes</h3>
+            <p id="admin-applications-message" class="login-message" aria-live="polite"></p>
+            <div id="admin-applications-list" class="saved-items"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-panel" class="view">
+        <div class="panel-shell">
+          <div class="panel-header">
+            <div>
+              <span class="eyebrow small">Panel comercio</span>
+              <h2 id="panel-store-name">Mi tienda</h2>
+            </div>
+            <button id="btn-logout-panel" class="panel-logout" type="button">Volver al perfil</button>
+          </div>
+
+          <div id="admin-preview-controls" class="admin-preview-controls" hidden>
+            <p>Vista previa de solo lectura. Los cambios requieren iniciar sesión con la cuenta propietaria del restaurante.</p>
+            <div class="field-group">
+              <label for="admin-preview-restaurant">Restaurante para previsualizar</label>
+              <select id="admin-preview-restaurant"></select>
+            </div>
+          </div>
+
+          <div class="panel-summary grid-3">
+            <div class="metric-card">
+              <strong id="metric-status">Abierto</strong>
+              <span>Estado</span>
+            </div>
+            <div class="metric-card">
+              <strong id="metric-orders">+500</strong>
+              <span>Pedidos</span>
+            </div>
+            <div class="metric-card">
+              <strong id="metric-rating">4.8</strong>
+              <span>Rating</span>
+            </div>
+          </div>
+
+          <form id="panel-form" class="panel-form">
+            <div class="field-group">
+              <label for="panel-name">Nombre del restaurante</label>
+              <input id="panel-name" type="text" maxlength="120" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-category">Categoría</label>
+              <input id="panel-category" type="text" maxlength="80" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-whatsapp">WhatsApp</label>
+              <input id="panel-whatsapp" type="tel" maxlength="20" required />
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-apertura">Apertura</label>
+                <input id="panel-apertura" type="time" required />
+              </div>
+              <div class="field-group">
+                <label for="panel-cierre">Cierre</label>
+                <input id="panel-cierre" type="time" required />
+              </div>
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-costo">Costo envío</label>
+                <input id="panel-costo" type="number" min="0" max="100000000" step="1" required />
+              </div>
+              <div class="field-group">
+                <label for="panel-tiempo">Tiempo estimado</label>
+                <input id="panel-tiempo" type="text" maxlength="40" required />
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="panel-cobertura">Cobertura / municipio</label>
+              <input id="panel-cobertura" type="text" maxlength="100" required />
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-pais">País</label>
+                <input id="panel-pais" type="text" maxlength="100" required />
+              </div>
+              <div class="field-group">
+                <label for="panel-departamento">Departamento</label>
+                <input id="panel-departamento" type="text" maxlength="100" required />
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="panel-contacto">Responsable</label>
+              <input id="panel-contacto" type="text" maxlength="120" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-direccion">Dirección del restaurante</label>
+              <input id="panel-direccion" type="text" maxlength="400" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-logo">URL HTTPS del logo</label>
+              <input id="panel-logo" type="url" maxlength="2000" />
+            </div>
+            <div class="field-group">
+              <label for="panel-portada">URL HTTPS de portada</label>
+              <input id="panel-portada" type="url" maxlength="2000" />
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-estado">Estado</label>
+                <select id="panel-estado">
+                  <option value="Automatico">Según horario</option>
+                  <option value="Abierto">Abierto</option>
+                  <option value="Cerrado">Cerrado</option>
+                </select>
+              </div>
+              <label class="field-group checkbox-field" for="panel-envio-gratis">
+                <span>Envío gratis</span>
+                <input id="panel-envio-gratis" type="checkbox" />
+              </label>
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-lat">Latitud (opcional)</label>
+                <input id="panel-lat" type="number" step="any" min="-90" max="90" />
+              </div>
+              <div class="field-group">
+                <label for="panel-lng">Longitud (opcional)</label>
+                <input id="panel-lng" type="number" step="any" min="-180" max="180" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="panel-radio">Radio de entrega (km, opcional)</label>
+              <input id="panel-radio" type="number" min="0.1" max="200" step="any" />
+            </div>
+            <p id="panel-message" class="login-message" aria-live="polite"></p>
+            <button class="primary-btn" type="submit">Guardar configuración</button>
+          </form>
+
+          <div class="panel-products-header">
+            <h3>Productos</h3>
+            <button id="add-product-btn" class="secondary-btn" type="button">+ Nuevo plato</button>
+          </div>
+          <div id="panel-products" class="panel-products"></div>
+          <section class="panel-orders">
+            <h3>Pedidos recibidos</h3>
+            <div id="merchant-orders" class="saved-items"></div>
+          </section>
+        </div>
+      </section>
+
+      <nav class="bottom-nav" aria-label="Navegación principal">
+        <button class="nav-item active" type="button" data-target="lobby">
+          <i class="fa-solid fa-house"></i>
+          <span>Inicio</span>
+        </button>
+        <button class="nav-item" type="button" data-target="favorites">
+          <i class="fa-regular fa-heart"></i>
+          <span>Favoritos</span>
+        </button>
+        <button class="floating-center-btn" id="btn-quick-actions" type="button" aria-label="Abrir atajos" aria-haspopup="true" aria-expanded="false">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+        <button class="nav-item" type="button" data-target="orders">
+          <i class="fa-solid fa-receipt"></i>
+          <span>Pedidos</span>
+        </button>
+        <button class="nav-item" type="button" data-target="profile">
+          <i class="fa-solid fa-user"></i>
+          <span>Perfil</span>
+        </button>
+        <div id="quick-actions" class="quick-actions" aria-label="Atajos" hidden>
+          <button type="button" data-quick-action="search"><i class="fa-solid fa-magnifying-glass"></i><span>Buscar restaurantes</span></button>
+          <button type="button" data-quick-action="cart"><i class="fa-solid fa-cart-shopping"></i><span>Ver carrito</span><strong id="quick-cart-count">0</strong></button>
+          <button type="button" data-quick-action="favorites"><i class="fa-regular fa-heart"></i><span>Favoritos</span></button>
+          <button type="button" id="quick-merchant-action" data-quick-action="merchant" hidden><i class="fa-solid fa-store"></i><span>Panel del restaurante</span></button>
+        </div>
+      </nav>
+    </div>
+
+    <dialog id="location-dialog" class="app-dialog">
+      <form id="location-form" method="dialog">
+        <h2>Ubicación de entrega</h2>
+        <div class="field-group">
+          <label for="delivery-city">Ciudad / municipio</label>
+          <select id="delivery-city" required></select>
+        </div>
+        <div class="field-group">
+          <label for="delivery-address">Dirección de entrega</label>
+          <input id="delivery-address" type="text" maxlength="400" autocomplete="street-address" />
+        </div>
+        <button id="gps-location-btn" class="secondary-btn" type="button">Usar GPS</button>
+        <button id="gps-clear-btn" class="secondary-btn" type="button">Quitar GPS guardado</button>
+        <p id="gps-location-status" class="login-message" aria-live="polite"></p>
+        <p class="location-attribution">Al usar GPS, se envían tus coordenadas a <a href="https://nominatim.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap Nominatim</a> para detectar el municipio. Datos © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p>
+        <div class="dialog-actions">
+          <button class="secondary-btn" type="button" data-close-dialog="location-dialog">Cancelar</button>
+          <button class="primary-btn" type="submit">Guardar ubicación</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="cart-dialog" class="app-dialog">
+      <form id="checkout-form">
+        <h2>Tu carrito</h2>
+        <div id="cart-items" class="saved-items"></div>
+        <div class="cart-totals">
+          <span>Subtotal <strong id="cart-subtotal">$0</strong></span>
+          <span>Ahorro <strong id="cart-savings">$0</strong></span>
+          <span>Domicilio <strong id="cart-shipping">$0</strong></span>
+          <span>Total estimado <strong id="cart-total">$0</strong></span>
+        </div>
+        <div class="field-group">
+          <label for="checkout-city">Ciudad de entrega</label>
+          <select id="checkout-city" required></select>
+        </div>
+        <div class="field-group">
+          <label for="checkout-address">Dirección exacta</label>
+          <input id="checkout-address" type="text" maxlength="400" autocomplete="street-address" required />
+        </div>
+        <p id="checkout-message" class="login-message" aria-live="polite"></p>
+        <div id="checkout-links" class="saved-items"></div>
+        <div class="dialog-actions">
+          <button class="secondary-btn" type="button" data-close-dialog="cart-dialog">Seguir comprando</button>
+          <button id="checkout-submit" class="primary-btn" type="submit">Preparar pedido</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="product-dialog" class="app-dialog">
+      <form id="product-form">
+        <h2 id="product-dialog-title">Nuevo producto</h2>
+        <input id="product-id" type="hidden" />
+        <div class="field-group">
+          <label for="product-name">Nombre</label>
+          <input id="product-name" type="text" maxlength="120" required />
+        </div>
+        <div class="field-group">
+          <label for="product-description">Descripción</label>
+          <textarea id="product-description" maxlength="1000"></textarea>
+        </div>
+        <div class="split-row">
+          <div class="field-group">
+            <label for="product-price">Precio de oferta</label>
+            <input id="product-price" type="number" min="1" max="100000000" step="1" required />
+          </div>
+          <div class="field-group">
+            <label for="product-previous-price">Precio normal</label>
+            <input id="product-previous-price" type="number" min="0" max="100000000" step="1" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="product-category">Categoría</label>
+          <input id="product-category" type="text" maxlength="80" />
+        </div>
+        <div class="field-group">
+          <label for="product-image">URL HTTPS de la foto</label>
+          <input id="product-image" type="url" maxlength="2000" />
+        </div>
+        <label class="checkbox-field" for="product-available">
+          <span>Disponible para clientes</span>
+          <input id="product-available" type="checkbox" checked />
+        </label>
+        <p id="product-message" class="login-message" aria-live="polite"></p>
+        <div class="dialog-actions">
+          <button class="secondary-btn" type="button" data-close-dialog="product-dialog">Cancelar</button>
+          <button id="product-save" class="primary-btn" type="submit">Guardar producto</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="password-update-dialog" class="app-dialog">
+      <form id="password-update-form">
+        <h2>Actualizar contraseña</h2>
+        <div class="field-group">
+          <label for="new-account-password">Nueva contraseña</label>
+          <input id="new-account-password" type="password" minlength="8" autocomplete="new-password" required />
+        </div>
+        <p id="password-update-message" class="login-message" aria-live="polite"></p>
+        <button id="password-update-submit" class="primary-btn" type="submit">Guardar contraseña</button>
+      </form>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

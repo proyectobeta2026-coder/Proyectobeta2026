@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ff5a36" />
+    <title>Panel de comercio | RapiYa</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body data-page="panel">
+    <div class="app-container">
+      <section id="view-panel" class="view active">
+        <div id="panel-access-gate" class="login-container">
+          <span class="eyebrow">Comercios</span>
+          <h2>Acceso restringido</h2>
+          <p>Inicia sesión con una cuenta vinculada a un restaurante.</p>
+          <a class="secondary-btn" href="./index.html#profile">Ir a Perfil</a>
+        </div>
+        <div class="panel-shell" hidden>
+          <div class="panel-header">
+            <div>
+              <span class="eyebrow small">Panel comercio</span>
+              <h2 id="panel-store-name">Mi tienda</h2>
+            </div>
+            <button id="btn-logout-panel" class="panel-logout" type="button">Volver al perfil</button>
+          </div>
+
+          <div class="panel-summary grid-3">
+            <div class="metric-card">
+              <strong id="metric-status">Abierto</strong>
+              <span>Estado</span>
+            </div>
+            <div class="metric-card">
+              <strong id="metric-orders">+500</strong>
+              <span>Pedidos</span>
+            </div>
+            <div class="metric-card">
+              <strong id="metric-rating">4.8</strong>
+              <span>Rating</span>
+            </div>
+          </div>
+
+          <form id="panel-form" class="panel-form">
+            <div class="field-group">
+              <label for="panel-name">Nombre del restaurante</label>
+              <input id="panel-name" type="text" maxlength="120" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-category">Categor�a</label>
+              <input id="panel-category" type="text" maxlength="80" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-whatsapp">WhatsApp</label>
+              <input id="panel-whatsapp" type="tel" maxlength="20" required />
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-apertura">Apertura</label>
+                <input id="panel-apertura" type="time" required />
+              </div>
+              <div class="field-group">
+                <label for="panel-cierre">Cierre</label>
+                <input id="panel-cierre" type="time" required />
+              </div>
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-costo">Costo env�o</label>
+                <input id="panel-costo" type="number" min="0" max="100000000" step="1" required />
+              </div>
+              <div class="field-group">
+                <label for="panel-tiempo">Tiempo estimado</label>
+                <input id="panel-tiempo" type="text" maxlength="40" required />
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="panel-cobertura">Cobertura / municipio</label>
+              <input id="panel-cobertura" type="text" maxlength="100" required />
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-pais">País</label>
+                <input id="panel-pais" type="text" maxlength="100" required />
+              </div>
+              <div class="field-group">
+                <label for="panel-departamento">Departamento</label>
+                <input id="panel-departamento" type="text" maxlength="100" required />
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="panel-contacto">Responsable</label>
+              <input id="panel-contacto" type="text" maxlength="120" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-direccion">Dirección del restaurante</label>
+              <input id="panel-direccion" type="text" maxlength="400" required />
+            </div>
+            <div class="field-group">
+              <label for="panel-logo">URL HTTPS del logo</label>
+              <input id="panel-logo" type="url" maxlength="2000" />
+            </div>
+            <div class="field-group">
+              <label for="panel-portada">URL HTTPS de portada</label>
+              <input id="panel-portada" type="url" maxlength="2000" />
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-estado">Estado</label>
+                <select id="panel-estado">
+                  <option value="Automatico">Según horario</option>
+                  <option value="Abierto">Abierto</option>
+                  <option value="Cerrado">Cerrado</option>
+                </select>
+              </div>
+              <label class="field-group checkbox-field" for="panel-envio-gratis">
+                <span>Envío gratis</span>
+                <input id="panel-envio-gratis" type="checkbox" />
+              </label>
+            </div>
+            <div class="split-row">
+              <div class="field-group">
+                <label for="panel-lat">Latitud (opcional)</label>
+                <input id="panel-lat" type="number" step="any" min="-90" max="90" />
+              </div>
+              <div class="field-group">
+                <label for="panel-lng">Longitud (opcional)</label>
+                <input id="panel-lng" type="number" step="any" min="-180" max="180" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="panel-radio">Radio de entrega (km, opcional)</label>
+              <input id="panel-radio" type="number" min="0.1" max="200" step="any" />
+            </div>
+            <p id="panel-message" class="login-message" aria-live="polite"></p>
+            <button class="primary-btn" type="submit">Guardar configuraci�n</button>
+          </form>
+
+          <div class="panel-products-header">
+            <h3>Productos</h3>
+            <button id="add-product-btn" class="secondary-btn" type="button">+ Nuevo plato</button>
+          </div>
+          <div id="panel-products" class="panel-products"></div>
+          <section class="panel-orders">
+            <h3>Pedidos recibidos</h3>
+            <div id="merchant-orders" class="saved-items"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <dialog id="product-dialog" class="app-dialog">
+      <form id="product-form">
+        <h2 id="product-dialog-title">Nuevo producto</h2>
+        <input id="product-id" type="hidden" />
+        <div class="field-group">
+          <label for="product-name">Nombre</label>
+          <input id="product-name" type="text" maxlength="120" required />
+        </div>
+        <div class="field-group">
+          <label for="product-description">Descripción</label>
+          <textarea id="product-description" maxlength="1000"></textarea>
+        </div>
+        <div class="split-row">
+          <div class="field-group">
+            <label for="product-price">Precio de oferta</label>
+            <input id="product-price" type="number" min="1" max="100000000" step="1" required />
+          </div>
+          <div class="field-group">
+            <label for="product-previous-price">Precio normal</label>
+            <input id="product-previous-price" type="number" min="0" max="100000000" step="1" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="product-category">Categoría</label>
+          <input id="product-category" type="text" maxlength="80" />
+        </div>
+        <div class="field-group">
+          <label for="product-image">URL HTTPS de la foto</label>
+          <input id="product-image" type="url" maxlength="2000" />
+        </div>
+        <label class="checkbox-field" for="product-available">
+          <span>Disponible para clientes</span>
+          <input id="product-available" type="checkbox" checked />
+        </label>
+        <p id="product-message" class="login-message" aria-live="polite"></p>
+        <div class="dialog-actions">
+          <button class="secondary-btn" type="button" data-close-dialog="product-dialog">Cancelar</button>
+          <button id="product-save" class="primary-btn" type="submit">Guardar producto</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
