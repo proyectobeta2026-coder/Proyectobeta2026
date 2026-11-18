@@ -1,8 +1,8 @@
 {
-  "name": "rapiya-app",
+  "name": "toque-app",
   "version": "1.0.0",
   "private": true,
-  "description": "RapiYa App MVP delivery marketplace",
+  "description": "Toque — plataforma de pedidos entre compradores y restaurantes",
   "main": "api/index.js",
   "scripts": {
     "dev": "node api/index.js",

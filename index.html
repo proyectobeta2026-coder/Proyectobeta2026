@@ -1,783 +1,910 @@
 <!DOCTYPE html>
+
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ff5a36" />
-    <title>RapiYa App</title>
-    <link rel="manifest" href="manifest.json" />
-    <link rel="stylesheet" href="style.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-  </head>
-  <body data-page="app">
-    <div id="app-container" class="app-container">
-      <section id="view-lobby" class="view active">
-        <header class="top-bar">
-          <button class="location-selector" id="btn-location" type="button" aria-label="Cambiar ubicación de entrega">
-            <i class="fa-solid fa-location-dot"></i>
-            <span id="location-label">Selecciona tu ciudad</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-
-          <div class="top-actions">
-            <button class="icon-btn" id="btn-historial" title="Mis pedidos">
-              <i class="fa-solid fa-clipboard-list"></i>
-            </button>
-            <button class="icon-btn cart-badge" id="btn-carrito" title="Carrito">
-              <i class="fa-solid fa-cart-shopping"></i>
-              <span id="cart-count">0</span>
-            </button>
-          </div>
-        </header>
-
-        <div class="search-section">
-          <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="input-buscar" placeholder="Busca tu comida favorita" />
-            <button class="search-btn" id="search-btn">Buscar</button>
-          </div>
-        </div>
-
-        <div class="hero-banner">
-          <div class="banner-content">
-            <span class="banner-tag">¡30% OFF</span>
-            <h2>En tu primer pedido<br />con RapiYa</h2>
-            <button class="banner-cta" type="button">Pide ahora</button>
-          </div>
-          <img
-            src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80"
-            alt="Promo de pizza"
-          />
-        </div>
-
-        <div id="categories" class="categories-container"></div>
-        <section id="top-restaurantes-section" class="top-restaurants-section" aria-label="Restaurantes más pedidos" hidden>
-          <div class="catalog-section-heading">
-            <div>
-              <span class="catalog-eyebrow">Basado en pedidos entregados</span>
-              <h3><i class="fa-solid fa-trophy"></i> Top 5 en <span id="top-city-name"></span></h3>
-            </div>
-          </div>
-          <div id="top-restaurantes-grid" class="grid-container"></div>
-        </section>
-        <div id="other-restaurants-heading" class="catalog-section-heading" hidden>
-          <h3>Otros restaurantes</h3>
-        </div>
-        <div id="restaurantes-grid" class="grid-container"></div>
-      </section>
-
-      <section id="view-restaurant" class="view">
-        <div id="store-header" class="store-header">
-          <div class="store-nav-actions">
-            <button class="circle-btn" id="back-to-lobby" type="button">
-              <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <div class="right-actions">
-              <button class="circle-btn" type="button">
-                <i class="fa-solid fa-magnifying-glass"></i>
-              </button>
-              <button class="circle-btn" id="btn-favorite-restaurant" type="button" aria-label="Agregar restaurante a favoritos">
-                <i class="fa-regular fa-heart"></i>
-              </button>
-              <button class="circle-btn" type="button">
-                <i class="fa-solid fa-share-nodes"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="store-profile-card">
-          <div class="store-badges">
-            <span class="badge-top"><i class="fa-solid fa-medal"></i> RapiYa Top</span>
-            <span id="store-orders-badge" class="badge-recompras" hidden><i class="fa-solid fa-check-circle"></i> <span id="store-orders-count"></span></span>
-          </div>
-
-          <div class="store-title-row">
-            <img id="store-logo" class="store-logo" alt="Logo del restaurante" />
-            <div>
-              <h2 id="store-name">Restaurante</h2>
-              <p id="store-meta">Cargando...</p>
-            </div>
-          </div>
-
-          <div class="delivery-info-bar">
-            <span id="store-delivery">Entrega a domicilio</span>
-            <span id="store-price" class="price-domi">$0</span>
-          </div>
-
-          <div class="promo-shipping-banner">
-            <i class="fa-solid fa-bicycle"></i>
-            <span id="store-promo">Envío gratis por compras mayores a $35k</span>
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-header">
-            <h3>Menú destacado</h3>
-            <span id="menu-count">0 platos</span>
-          </div>
-          <div id="platos-container" class="dishes-list"></div>
-        </div>
-      </section>
-
-      <section id="view-favorites" class="view">
-        <div class="secondary-page-shell">
-          <div class="page-heading">
-            <span class="eyebrow small">Tu selección</span>
-            <h2>Favoritos</h2>
-          </div>
-          <div class="segmented-control" role="group" aria-label="Tipo de favorito">
-            <button class="segment active" type="button" data-favorites-type="restaurante">Restaurantes</button>
-            <button class="segment" type="button" data-favorites-type="producto">Productos</button>
-          </div>
-          <div id="favorites-content" class="saved-items"></div>
-        </div>
-      </section>
-
-      <section id="view-orders" class="view">
-        <div class="secondary-page-shell">
-          <div class="page-heading">
-            <span class="eyebrow small">Actividad</span>
-            <h2>Mis pedidos</h2>
-            <p class="orders-subtitle">Sigue el estado de cada pedido. El restaurante confirma su aceptación y entrega.</p>
-          </div>
-          <div class="orders-tools">
-            <span id="orders-auto-refresh" aria-live="polite">Consultando tus pedidos...</span>
-            <button id="orders-refresh" class="secondary-btn" type="button">Actualizar</button>
-          </div>
-          <div id="orders-content" class="saved-items"></div>
-        </div>
-      </section>
-
-      <section id="view-profile" class="view">
-        <div class="secondary-page-shell">
-          <div class="page-heading">
-            <span class="eyebrow small">RapiYa</span>
-            <h2>Perfil</h2>
-          </div>
-          <form id="account-auth-form" class="account-panel">
-            <div class="field-group">
-              <label for="account-email">Correo electrónico</label>
-              <input id="account-email" type="email" autocomplete="email" required />
-            </div>
-            <div class="field-group">
-              <label for="account-password">Contraseña</label>
-              <input id="account-password" type="password" autocomplete="current-password" minlength="8" required />
-            </div>
-            <div id="signup-fields" class="signup-fields" hidden>
-              <div class="field-group">
-                <label for="account-name">Nombre completo</label>
-                <input id="account-name" type="text" autocomplete="name" minlength="2" maxlength="120" />
-              </div>
-              <div class="field-group">
-                <label for="account-phone">Teléfono (opcional)</label>
-                <input id="account-phone" type="tel" autocomplete="tel" maxlength="30" placeholder="+57 300 000 0000" />
-              </div>
-              <label class="consent-field">
-                <input id="accept-terms" type="checkbox" />
-                <span>Acepto los términos del servicio (versión v1.0).</span>
-              </label>
-              <label class="consent-field">
-                <input id="acknowledge-privacy" type="checkbox" />
-                <span>Confirmo que leí el aviso de privacidad (versión v1.0).</span>
-              </label>
-              <p class="legal-note">Publica los textos legales definitivos antes de habilitar registros de producción.</p>
-            </div>
-            <div id="merchant-signup-fields" class="signup-fields" hidden>
-              <div class="field-group">
-                <label for="merchant-name">Nombre del restaurante</label>
-                <input id="merchant-name" type="text" maxlength="120" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-category">Categoría</label>
-                <input id="merchant-category" type="text" maxlength="80" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-whatsapp">WhatsApp con código de país</label>
-                <input id="merchant-whatsapp" type="tel" maxlength="20" placeholder="573001234567" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-city">Ciudad / municipio</label>
-                <input id="merchant-city" type="text" maxlength="100" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-department">Departamento</label>
-                <input id="merchant-department" type="text" maxlength="100" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-country">País</label>
-                <input id="merchant-country" type="text" maxlength="100" value="Colombia" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-address">Dirección del restaurante</label>
-                <input id="merchant-address" type="text" maxlength="400" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-logo">URL HTTPS del logo (opcional)</label>
-                <input id="merchant-logo" type="url" maxlength="2000" />
-              </div>
-              <div class="field-group">
-                <label for="merchant-cover">URL HTTPS de portada (opcional)</label>
-                <input id="merchant-cover" type="url" maxlength="2000" />
-              </div>
-            </div>
-            <div class="account-actions">
-              <button id="btn-login-user" class="primary-btn" type="submit" data-auth-action="login">Iniciar sesión</button>
-              <button class="secondary-btn" type="button" id="btn-signup-user">Crear cuenta de comprador</button>
-              <button class="secondary-btn" type="button" id="btn-signup-merchant">Registrar mi restaurante</button>
-              <button class="primary-btn" type="submit" id="btn-create-account" data-auth-action="signup" hidden>Registrarme</button>
-              <button class="primary-btn" type="submit" id="btn-create-merchant" data-auth-action="signup-merchant" hidden>Enviar solicitud</button>
-              <button class="secondary-btn" type="button" id="btn-back-login" hidden>Volver a iniciar sesión</button>
-              <button class="secondary-btn" type="button" id="btn-reset-password">Olvidé mi contraseña</button>
-            </div>
-            <p id="account-message" class="login-message" aria-live="polite"></p>
-          </form>
-          <div id="account-details" class="account-panel" hidden>
-            <p id="account-email-label" class="account-email"></p>
-            <p id="account-role-label" class="account-role"></p>
-            <button id="btn-open-merchant-panel" class="primary-btn" type="button" hidden>Abrir panel del restaurante</button>
-            <section id="admin-preview-actions" class="admin-preview-actions" hidden>
-              <h3>Previsualizar la aplicación</h3>
-              <p>Alterna entre la experiencia del cliente y el panel de un restaurante en modo de solo lectura.</p>
-              <button id="btn-admin-preview-customer" class="secondary-btn" type="button">Ver vista de cliente</button>
-              <button id="btn-admin-preview-restaurant" class="primary-btn" type="button">Ver vista de restaurante</button>
-            </section>
-            <button id="btn-signout-user" class="secondary-btn" type="button">Cerrar sesión</button>
-          </div>
-          <section id="pideya-support" class="account-panel" hidden>
-            <h3><i class="fa-solid fa-circle-question"></i> Ayuda y reportes</h3>
-            <p class="admin-hint">Comunica inconvenientes con la plataforma o un restaurante. PideYa no recibe pagos.</p>
-            <form id="pideya-report-form" class="admin-report-form">
-              <label for="pideya-report-restaurant">Restaurante relacionado (opcional)</label>
-              <select id="pideya-report-restaurant"><option value="">General / plataforma</option></select>
-              <label for="pideya-report-title">Asunto</label>
-              <input id="pideya-report-title" required minlength="5" maxlength="120" placeholder="Ej. Problema con un pedido" />
-              <label for="pideya-report-description">Descripción</label>
-              <textarea id="pideya-report-description" required minlength="10" maxlength="1500" rows="3" placeholder="Cuenta qué ocurrió sin incluir contraseñas ni datos de pago."></textarea>
-              <button class="secondary-btn" type="submit">Enviar reporte</button>
-              <p id="pideya-report-message" class="login-message" aria-live="polite"></p>
-            </form>
-            <div id="pideya-own-reports" class="admin-report-list"></div>
-          </section>
-          <section id="pideya-admin-center" class="account-panel" hidden>
-            <div class="admin-center-heading">
-              <h3><i class="fa-solid fa-shield-halved"></i> Centro de administración PideYa</h3>
-              <button id="pideya-admin-refresh" class="secondary-btn" type="button">Actualizar</button>
-            </div>
-            <p class="admin-hint">Supervisión general. PideYa conecta compradores con restaurantes y no cobra ni confirma pagos.</p>
-            <p id="pideya-admin-status" class="login-message" aria-live="polite"></p>
-            <div id="pideya-admin-metrics" class="admin-metric-grid"></div>
-            <h4>Restaurantes y categorías</h4>
-            <p class="admin-hint">La suspensión impide recibir nuevos pedidos. Los pedidos previos siguen en gestión del comercio.</p>
-            <div id="pideya-admin-restaurants" class="admin-restaurants"></div>
-            <h4>Reportes de soporte</h4>
-            <div id="pideya-admin-reports" class="admin-report-list"></div>
-          </section>
-          <section id="admin-applications" class="account-panel" hidden>
-            <h3>Solicitudes de restaurantes</h3>
-            <p id="admin-applications-message" class="login-message" aria-live="polite"></p>
-            <div id="admin-applications-list" class="saved-items"></div>
-          </section>
-        </div>
-      </section>
-
-      <section id="view-panel" class="view">
-        <div class="panel-shell">
-          <div class="panel-header">
-            <div>
-              <span class="eyebrow small">Panel comercio</span>
-              <h2 id="panel-store-name">Mi tienda</h2>
-            </div>
-            <button id="btn-logout-panel" class="panel-logout" type="button">Volver al perfil</button>
-          </div>
-
-          <div id="admin-preview-controls" class="admin-preview-controls" hidden>
-            <p>Vista previa de solo lectura. Los cambios requieren iniciar sesión con la cuenta propietaria del restaurante.</p>
-            <div class="field-group">
-              <label for="admin-preview-restaurant">Restaurante para previsualizar</label>
-              <select id="admin-preview-restaurant"></select>
-            </div>
-          </div>
-
-          <div id="merchant-order-alert" class="merchant-order-alert" role="status" aria-live="polite" hidden>
-            <span class="merchant-alert-icon" aria-hidden="true"><i class="fa-solid fa-bell"></i></span>
-            <div class="merchant-alert-copy">
-              <strong id="merchant-order-alert-title">¡Nuevo pedido recibido!</strong>
-              <p id="merchant-order-alert-details"></p>
-            </div>
-            <button type="button" id="merchant-order-alert-view" class="merchant-alert-view">Ver</button>
-            <button type="button" id="merchant-order-alert-close" class="merchant-alert-close" aria-label="Cerrar aviso">×</button>
-          </div>
-
-          <div class="panel-summary grid-3">
-            <div class="metric-card">
-              <strong id="metric-status">Abierto</strong>
-              <span>Estado</span>
-            </div>
-            <div class="metric-card">
-              <strong id="metric-orders">—</strong>
-              <span>Pedidos</span>
-            </div>
-            <div class="metric-card">
-              <strong id="metric-rating">4.8</strong>
-              <span>Rating</span>
-            </div>
-          </div>
-
-<details class="merchant-analytics" id="merchant-analytics" open>
-  <summary class="merchant-analytics-summary">
-    <span><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Estadísticas del restaurante</span>
-    <span class="merchant-analytics-fold">Ver / ocultar</span>
-  </summary>
-  <div class="merchant-analytics-body">
-    <p class="merchant-analytics-note">Datos reales de los pedidos registrados en PideYa. Los valores de pedidos entregados son <strong>estimados</strong>: PideYa no cobra ni confirma pagos.</p>
-    <div class="merchant-analytics-toolbar">
-      <label for="merchant-analytics-period">Periodo</label>
-      <select id="merchant-analytics-period">
-        <option value="hoy">Hoy</option>
-        <option value="7d">Últimos 7 días</option>
-        <option value="30d" selected>Últimos 30 días</option>
-        <option value="todo">Todo el historial</option>
-      </select>
-      <button class="secondary-btn" type="button" id="merchant-analytics-refresh">Actualizar</button>
-    </div>
-    <p id="merchant-analytics-status" class="merchant-analytics-status" role="status" aria-live="polite"></p>
-    <div id="merchant-analytics-content" class="merchant-analytics-content"></div>
-  </div>
-</details>
-
-          <form id="panel-form" class="panel-form">
-            <div class="field-group">
-              <label for="panel-name">Nombre del restaurante</label>
-              <input id="panel-name" type="text" maxlength="120" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-category">Categoría</label>
-              <input id="panel-category" type="text" maxlength="80" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-whatsapp">WhatsApp</label>
-              <input id="panel-whatsapp" type="tel" maxlength="20" required />
-            </div>
-            <div class="split-row">
-              <div class="field-group">
-                <label for="panel-apertura">Apertura</label>
-                <input id="panel-apertura" type="time" required />
-              </div>
-              <div class="field-group">
-                <label for="panel-cierre">Cierre</label>
-                <input id="panel-cierre" type="time" required />
-              </div>
-            </div>
-                        <fieldset class="weekly-schedule">
-              <legend>Horario de atención por día</legend>
-              <label class="weekly-schedule-master">
-                <input type="checkbox" id="panel-weekly-enabled" />
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#ff5a36" name="theme-color"/>
+<title>Toque | Restaurantes y pedidos a domicilio</title>
+<link href="manifest.json" rel="manifest"/>
+<link href="style.css" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" referrerpolicy="no-referrer" rel="stylesheet"/>
+</head>
+<body data-page="app">
+<div aria-label="Cargando Toque" class="app-splash" id="app-splash" role="status">
+<div class="splash-frame">
+<div aria-label="Toque" class="splash-brand">To<span>que</span></div>
+<div aria-hidden="true" class="splash-loading"><span></span></div>
+<img alt="Hamburguesa preparada para disfrutar" class="splash-food" fetchpriority="high" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&amp;fit=crop&amp;w=800&amp;q=85"/>
+</div>
+</div>
+<div class="app-container" id="app-container">
+<section class="view active" id="view-lobby">
+<header class="top-bar">
+<div class="brand-location"><strong aria-label="Toque" class="top-brand">To<span>que</span></strong><button aria-label="Cambiar ubicación de entrega" class="location-selector" id="btn-location" title="Cambiar ciudad de entrega" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+<span id="location-label">Selecciona tu ciudad</span>
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+</button></div>
+<div class="top-actions">
+<button aria-label="Ver mis pedidos" class="icon-btn" id="btn-historial" title="Mis pedidos" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="17" rx="2" width="14" x="5" y="5"></rect><path d="M9 5.5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1.5M9 12h6m-6 4h6"></path></svg>
+</button>
+<button aria-label="Abrir carrito de compras" class="icon-btn cart-badge" id="btn-carrito" title="Carrito" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.5 13.5a2 2 0 0 0 2 1.5H20a2 2 0 0 0 2-1.6L23 7H6"></path></svg>
+<span id="cart-count">0</span>
+</button>
+</div>
+</header>
+<div class="search-section">
+<div class="search-box">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+<input aria-label="Buscar restaurantes por nombre" id="input-buscar" placeholder="Buscar restaurantes por nombre" type="search"/>
+<button class="search-btn" id="search-btn">Buscar</button>
+</div>
+</div>
+<div aria-label="Promociones publicadas" id="home-banner"></div>
+<div id="home-fallback-banner">
+<div class="hero-banner">
+<div class="banner-content">
+<span class="banner-tag">Explora tu ciudad</span>
+<h2>Tu próxima comida<br/>está aquí</h2><p class="banner-description">Encuentra los negocios disponibles y pide directamente a tu restaurante favorito.</p>
+<a class="banner-cta" href="#restaurantes-grid" type="button">Ver restaurantes</a>
+</div>
+<img alt="Pizza de referencia para ilustrar restaurantes" src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&amp;fit=crop&amp;w=900&amp;q=80"/>
+</div>
+</div>
+<div class="catalog-section-heading category-title"><h3>¿Qué te provoca hoy?</h3></div><div class="categories-container" id="categories"></div>
+<section aria-label="Restaurantes más pedidos" class="top-restaurants-section" hidden="" id="top-restaurantes-section">
+<div class="catalog-section-heading">
+<div>
+<span class="catalog-eyebrow">Basado en pedidos entregados</span>
+<h3><i class="fa-solid fa-trophy"></i> Top 5 en <span id="top-city-name"></span></h3>
+</div>
+</div>
+<div class="grid-container" id="top-restaurantes-grid"></div>
+</section>
+<div class="catalog-section-heading" hidden="" id="other-restaurants-heading">
+<h3>Restaurantes disponibles</h3>
+</div>
+<div class="grid-container" id="restaurantes-grid"></div>
+</section>
+<section class="view" id="view-restaurant">
+<div class="store-header" id="store-header">
+<div class="store-nav-actions">
+<button aria-label="Volver al listado de restaurantes" class="circle-btn" id="back-to-lobby" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<div class="right-actions">
+<button aria-label="Agregar restaurante a favoritos" class="circle-btn" id="btn-favorite-restaurant" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"></path></svg>
+</button>
+</div>
+</div>
+</div>
+<div class="store-profile-card">
+<div class="store-badges">
+<span class="badge-recompras" hidden="" id="store-orders-badge"><i class="fa-solid fa-check-circle"></i> <span id="store-orders-count"></span></span>
+</div>
+<div class="store-title-row">
+<img alt="Logo del restaurante" class="store-logo" decoding="async" id="store-logo"/>
+<div>
+<h2 id="store-name">Restaurante</h2>
+<p id="store-meta">Cargando...</p>
+</div>
+</div>
+<div class="delivery-info-bar">
+<span id="store-delivery">Entrega a domicilio</span>
+<span class="price-domi" id="store-price">$0</span>
+</div>
+<div class="promo-shipping-banner" hidden="">
+<i class="fa-solid fa-bicycle"></i>
+<span id="store-promo">Envío gratis</span>
+</div>
+</div>
+<div class="menu-section">
+<div class="section-header">
+<h3>Menú del restaurante</h3>
+<span id="menu-count">0 platos</span>
+</div>
+<div class="dishes-list" id="platos-container"></div>
+</div>
+</section>
+<section class="view" id="view-favorites">
+<div class="secondary-page-shell">
+<div class="page-heading">
+<span class="eyebrow small">Tu selección</span>
+<h2>Favoritos</h2>
+</div>
+<div aria-label="Tipo de favorito" class="segmented-control" role="group">
+<button class="segment active" data-favorites-type="restaurante" type="button">Restaurantes</button>
+<button class="segment" data-favorites-type="producto" type="button">Productos</button>
+</div>
+<div class="saved-items" id="favorites-content"></div>
+</div>
+</section>
+<section class="view" id="view-orders">
+<div class="secondary-page-shell">
+<div class="page-heading">
+<span class="eyebrow small">Actividad</span>
+<h2>Mis pedidos</h2>
+<p class="orders-subtitle">Sigue el estado de cada pedido. El restaurante confirma su aceptación y entrega.</p>
+</div>
+<div class="orders-tools">
+<span aria-live="polite" id="orders-auto-refresh">Consultando tus pedidos...</span>
+<button class="secondary-btn" id="orders-refresh" type="button">Actualizar</button>
+</div>
+<div class="saved-items" id="orders-content"></div>
+</div>
+</section>
+<section class="view" id="view-profile">
+<div class="secondary-page-shell">
+<div class="page-heading">
+<span class="eyebrow small">Toque</span>
+<h2>Perfil</h2>
+</div>
+<form class="account-panel" id="account-auth-form">
+<div class="field-group">
+<label for="account-email">Correo electrónico</label>
+<input autocomplete="email" id="account-email" required="" type="email"/>
+</div>
+<div class="field-group">
+<label for="account-password">Contraseña</label>
+<input autocomplete="current-password" id="account-password" minlength="8" required="" type="password"/>
+</div>
+<div class="signup-fields" hidden="" id="signup-fields">
+<div class="field-group">
+<label for="account-name">Nombre completo</label>
+<input autocomplete="name" id="account-name" maxlength="120" minlength="2" type="text"/>
+</div>
+<div class="field-group">
+<label for="account-phone">Teléfono (opcional)</label>
+<input autocomplete="tel" id="account-phone" maxlength="30" placeholder="+57 300 000 0000" type="tel"/>
+</div>
+<label class="consent-field">
+<input id="accept-terms" type="checkbox"/>
+<span>Acepto los términos del servicio (versión v1.0).</span>
+</label>
+<label class="consent-field">
+<input id="acknowledge-privacy" type="checkbox"/>
+<span>Confirmo que leí el aviso de privacidad (versión v1.0).</span>
+</label>
+<p class="legal-note">Publica los textos legales definitivos antes de habilitar registros de producción.</p>
+</div>
+<div class="signup-fields" hidden="" id="merchant-signup-fields">
+<div class="field-group">
+<label for="merchant-name">Nombre del restaurante</label>
+<input id="merchant-name" maxlength="120" type="text"/>
+</div>
+<div class="field-group">
+<label for="merchant-category">Categoría</label>
+<input id="merchant-category" maxlength="80" type="text"/>
+</div>
+<div class="field-group">
+<label for="merchant-whatsapp">WhatsApp con código de país</label>
+<input id="merchant-whatsapp" maxlength="20" placeholder="573001234567" type="tel"/>
+</div>
+<div class="field-group">
+<label for="merchant-city">Ciudad / municipio</label>
+<input id="merchant-city" maxlength="100" type="text"/>
+</div>
+<div class="field-group">
+<label for="merchant-department">Departamento</label>
+<input id="merchant-department" maxlength="100" type="text"/>
+</div>
+<div class="field-group">
+<label for="merchant-country">País</label>
+<input id="merchant-country" maxlength="100" type="text" value="Colombia"/>
+</div>
+<div class="field-group">
+<label for="merchant-address">Dirección del restaurante</label>
+<input id="merchant-address" maxlength="400" type="text"/>
+</div>
+<div class="field-group">
+<label for="merchant-logo">URL HTTPS del logo (opcional)</label>
+<input id="merchant-logo" maxlength="2000" type="url"/>
+</div>
+<div class="field-group">
+<label for="merchant-cover">URL HTTPS de portada (opcional)</label>
+<input id="merchant-cover" maxlength="2000" type="url"/>
+</div>
+</div>
+<div class="account-actions">
+<button class="primary-btn" data-auth-action="login" id="btn-login-user" type="submit">Iniciar sesión</button>
+<button class="secondary-btn" id="btn-signup-user" type="button">Crear cuenta de comprador</button>
+<button class="secondary-btn" id="btn-signup-merchant" type="button">Registrar mi restaurante</button>
+<button class="primary-btn" data-auth-action="signup" hidden="" id="btn-create-account" type="submit">Registrarme</button>
+<button class="primary-btn" data-auth-action="signup-merchant" hidden="" id="btn-create-merchant" type="submit">Enviar solicitud</button>
+<button class="secondary-btn" hidden="" id="btn-back-login" type="button">Volver a iniciar sesión</button>
+<button class="secondary-btn" id="btn-reset-password" type="button">Olvidé mi contraseña</button>
+<button class="text-btn" id="btn-resend-confirmation" type="button">Reenviar confirmación de correo</button>
+</div>
+<p aria-live="polite" class="login-message" id="account-message"></p>
+</form>
+<div class="account-panel" hidden="" id="account-details">
+<p class="account-email" id="account-email-label"></p>
+<p class="account-role" id="account-role-label"></p>
+<section class="customer-profile" hidden="" id="customer-profile-panel">
+<div class="customer-profile-card">
+<div class="customer-profile-identity">
+<div aria-hidden="true" class="customer-profile-avatar" id="customer-profile-avatar">
+<span id="customer-avatar-initials">R</span>
+<img alt="" hidden="" id="customer-avatar-preview-image"/>
+</div>
+<div class="customer-profile-name">
+<h3 id="customer-profile-name">Cliente</h3>
+<button class="text-btn" id="btn-edit-profile" type="button">Editar perfil</button>
+</div>
+</div>
+<div class="customer-rating">
+<strong>—</strong>
+<span>Calificación</span>
+<small>Aún no tienes valoraciones de restaurantes</small>
+</div>
+</div>
+<button class="customer-verification" data-customer-panel="security" id="customer-verification" type="button">
+<i aria-hidden="true" class="fa-solid fa-shield-halved"></i>
+<div>
+<strong id="customer-verification-title">Perfil sin verificar</strong>
+<p id="customer-verification-copy">Confirma tu correo para verificar tu perfil.</p>
+</div>
+<i aria-hidden="true" class="fa-solid fa-chevron-right"></i>
+</button>
+<form class="account-panel customer-profile-panel" hidden="" id="customer-edit-panel">
+<h3>Editar perfil</h3>
+<div class="profile-photo-editor">
+<img alt="Vista previa de foto de perfil" class="customer-avatar-preview" hidden="" id="customer-avatar-preview"/>
+<label for="customer-avatar-file">Foto de perfil</label>
+<input accept="image/jpeg,image/png,image/webp" id="customer-avatar-file" type="file"/>
+<p aria-live="polite" class="login-message" id="customer-avatar-message"></p>
+</div>
+<div class="field-group">
+<label for="customer-name-input">Nombre</label>
+<input id="customer-name-input" maxlength="120" minlength="2" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="customer-phone-input">Teléfono</label>
+<input autocomplete="tel" id="customer-phone-input" maxlength="30" type="tel"/>
+</div>
+<div class="profile-panel-actions">
+<button class="primary-btn" type="submit">Guardar cambios</button>
+<button class="secondary-btn" data-close-profile-panel="" type="button">Cancelar</button>
+</div>
+<p aria-live="polite" class="login-message" id="customer-edit-message"></p>
+</form>
+<div class="account-panel customer-profile-panel" hidden="" id="customer-help-panel">
+<h3>Ayuda</h3>
+<p>Consulta el estado de tus pedidos o solicitudes de compra desde su historial.</p>
+<button class="secondary-btn" data-open-customer-orders="" type="button">Ver solicitudes de compra</button>
+</div>
+<div class="account-panel customer-profile-panel" hidden="" id="customer-settings-panel">
+<h3>Configuración de cuenta</h3>
+<p class="account-email" id="customer-settings-email"></p>
+<p>Para actualizar tu nombre o teléfono, usa “Editar perfil”.</p>
+<button class="secondary-btn" id="btn-settings-edit-profile" type="button">Editar datos personales</button>
+</div>
+<div class="account-panel customer-profile-panel" hidden="" id="customer-security-panel">
+<h3>Seguridad</h3>
+<p class="account-email" id="customer-security-email"></p>
+<p class="account-role" id="customer-security-verification"></p>
+<button class="secondary-btn" hidden="" id="btn-resend-profile-verification" type="button">Reenviar verificación</button>
+<form class="customer-password-form" id="customer-password-form">
+<div class="field-group">
+<label for="customer-new-password">Nueva contraseña</label>
+<input autocomplete="new-password" id="customer-new-password" minlength="8" required="" type="password"/>
+</div>
+<button class="primary-btn" type="submit">Actualizar contraseña</button>
+</form>
+<p aria-live="polite" class="login-message" id="customer-security-message"></p>
+</div>
+<div aria-label="Opciones del perfil" class="customer-profile-actions">
+<button class="customer-profile-action" data-customer-panel="help" type="button">
+<i aria-hidden="true" class="fa-solid fa-headset"></i><span>Ayuda</span>
+</button>
+<button class="customer-profile-action" data-open-customer-orders="" type="button">
+<i aria-hidden="true" class="fa-solid fa-receipt"></i><span>Solicitudes de compra</span>
+</button>
+<button class="customer-profile-action" data-customer-panel="security" type="button">
+<i aria-hidden="true" class="fa-solid fa-shield-halved"></i><span>Seguridad</span>
+</button>
+<button class="customer-profile-action" data-customer-panel="settings" type="button">
+<i aria-hidden="true" class="fa-solid fa-gear"></i><span>Configuración</span>
+</button>
+</div>
+<button class="secondary-btn customer-signout" id="btn-signout-customer" type="button">Cerrar sesión</button>
+</section>
+<button class="primary-btn" hidden="" id="btn-open-merchant-panel" type="button">Abrir panel del restaurante</button>
+<section class="admin-preview-actions" hidden="" id="admin-preview-actions">
+<h3>Previsualizar la aplicación</h3>
+<p>Alterna entre la experiencia del cliente y el panel de un restaurante en modo de solo lectura.</p>
+<button class="secondary-btn" id="btn-admin-preview-customer" type="button">Ver vista de cliente</button>
+<button class="primary-btn" id="btn-admin-preview-restaurant" type="button">Ver vista de restaurante</button>
+</section>
+<button class="secondary-btn" id="btn-signout-user" type="button">Cerrar sesión</button>
+</div>
+<section class="account-panel" hidden="" id="pideya-support">
+<h3><i class="fa-solid fa-circle-question"></i> Ayuda y reportes</h3>
+<p class="admin-hint">Comunica inconvenientes con la plataforma o un restaurante. Toque no recibe pagos.</p>
+<form class="admin-report-form" id="pideya-report-form">
+<label for="pideya-report-restaurant">Restaurante relacionado (opcional)</label>
+<select id="pideya-report-restaurant"><option value="">General / plataforma</option></select>
+<label for="pideya-report-title">Asunto</label>
+<input id="pideya-report-title" maxlength="120" minlength="5" placeholder="Ej. Problema con un pedido" required=""/>
+<label for="pideya-report-description">Descripción</label>
+<textarea id="pideya-report-description" maxlength="1500" minlength="10" placeholder="Cuenta qué ocurrió sin incluir contraseñas ni datos de pago." required="" rows="3"></textarea>
+<button class="secondary-btn" type="submit">Enviar reporte</button>
+<p aria-live="polite" class="login-message" id="pideya-report-message"></p>
+</form>
+<div class="admin-report-list" id="pideya-own-reports"></div>
+</section>
+<section class="account-panel" hidden="" id="pideya-admin-center">
+<div class="admin-center-heading">
+<h3><i class="fa-solid fa-shield-halved"></i> Centro de administración Toque</h3>
+<button class="secondary-btn" id="pideya-admin-refresh" type="button">Actualizar</button>
+</div>
+<p class="admin-hint">Supervisión general. Toque conecta compradores con restaurantes y no cobra ni confirma pagos.</p>
+<p aria-live="polite" class="login-message" id="pideya-admin-status"></p>
+<div class="admin-metric-grid" id="pideya-admin-metrics"></div>
+<h4>Restaurantes y categorías</h4>
+<p class="admin-hint">La suspensión impide recibir nuevos pedidos. Los pedidos previos siguen en gestión del comercio.</p>
+<div class="admin-restaurants" id="pideya-admin-restaurants"></div>
+<section aria-labelledby="admin-banner-title" class="admin-banner-manager">
+<div class="panel-products-header">
+<h3 id="admin-banner-title">Banners de inicio</h3>
+</div>
+<form class="account-panel" id="admin-banner-form">
+<input id="admin-banner-id" type="hidden"/>
+<div class="field-group">
+<label for="admin-banner-title-input">Título</label>
+<input id="admin-banner-title-input" maxlength="120" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="admin-banner-description">Descripción</label>
+<input id="admin-banner-description" maxlength="240" type="text"/>
+</div>
+<div class="field-group">
+<label for="admin-banner-tag">Etiqueta (opcional)</label>
+<input id="admin-banner-tag" maxlength="40" type="text"/>
+</div>
+<div class="field-group">
+<label for="admin-banner-button">Texto del botón (opcional)</label>
+<input id="admin-banner-button" maxlength="40" type="text"/>
+</div>
+<div class="field-group">
+<label for="admin-banner-link">Enlace del botón (opcional)</label>
+<input id="admin-banner-link" maxlength="500" type="url"/>
+</div>
+<div class="field-group">
+<label for="admin-banner-image">Imagen del banner</label>
+<input accept="image/jpeg,image/png,image/webp" id="admin-banner-image" type="file"/>
+<input id="admin-banner-image-url" maxlength="1000" placeholder="O pega la URL de una imagen" type="url"/>
+</div>
+<div class="field-group">
+<label for="admin-banner-order">Orden</label>
+<input id="admin-banner-order" max="10000" min="0" type="number" value="0"/>
+</div>
+<label class="consent-field">
+<input checked="" id="admin-banner-active" type="checkbox"/>
+<span>Mostrar en inicio</span>
+</label>
+<div class="profile-panel-actions">
+<button class="primary-btn" type="submit">Guardar banner</button>
+<button class="secondary-btn" hidden="" id="btn-cancel-banner-edit" type="button">Cancelar edición</button>
+</div>
+<p aria-live="polite" class="login-message" id="admin-banner-message"></p>
+</form>
+<div class="panel-products" id="admin-banner-list"></div>
+</section>
+<h4>Reportes de soporte</h4>
+<div class="admin-report-list" id="pideya-admin-reports"></div>
+</section>
+<section class="account-panel" hidden="" id="admin-applications">
+<h3>Solicitudes de restaurantes</h3>
+<p aria-live="polite" class="login-message" id="admin-applications-message"></p>
+<div class="saved-items" id="admin-applications-list"></div>
+</section>
+</div>
+</section>
+<section class="view" id="view-panel">
+<div class="panel-shell">
+<div class="panel-header">
+<div>
+<span class="eyebrow small">Panel del restaurante</span>
+<h2 id="panel-store-name">Mi tienda</h2>
+</div>
+<button class="panel-logout" id="btn-logout-panel" type="button">Volver al perfil</button>
+</div>
+<div class="admin-preview-controls" hidden="" id="admin-preview-controls">
+<p>Vista previa de solo lectura. Los cambios requieren iniciar sesión con la cuenta propietaria del restaurante.</p>
+<div class="field-group">
+<label for="admin-preview-restaurant">Restaurante para previsualizar</label>
+<select id="admin-preview-restaurant"></select>
+</div>
+</div>
+<section aria-label="Vista previa del perfil del restaurante" class="panel-profile-preview">
+<img alt="Portada del restaurante" class="panel-profile-cover" id="panel-profile-cover"/>
+<div class="panel-profile-info">
+<img alt="Logo del restaurante" class="panel-profile-logo" id="panel-profile-logo"/>
+<div class="panel-profile-copy">
+<span class="panel-profile-status" id="panel-profile-status">Abierto</span>
+<strong id="panel-profile-name">Mi tienda</strong>
+<p id="panel-profile-category">Categoría</p>
+</div>
+</div>
+</section>
+<div aria-live="polite" class="merchant-order-alert" hidden="" id="merchant-order-alert" role="status">
+<span aria-hidden="true" class="merchant-alert-icon"><i class="fa-solid fa-bell"></i></span>
+<div class="merchant-alert-copy">
+<strong id="merchant-order-alert-title">¡Nuevo pedido recibido!</strong>
+<p id="merchant-order-alert-details"></p>
+</div>
+<button class="merchant-alert-view" id="merchant-order-alert-view" type="button">Ver</button>
+<button aria-label="Cerrar aviso" class="merchant-alert-close" id="merchant-order-alert-close" type="button">×</button>
+</div>
+<nav aria-label="Accesos directos del restaurante" class="panel-shortcuts">
+<a href="#merchant-orders"><i aria-hidden="true" class="fa-solid fa-receipt"></i> Pedidos</a>
+<a href="#panel-products"><i aria-hidden="true" class="fa-solid fa-utensils"></i> Productos</a>
+<a href="#merchant-promotions"><i aria-hidden="true" class="fa-solid fa-tags"></i> Promociones</a>
+<a href="#merchant-analytics"><i aria-hidden="true" class="fa-solid fa-chart-simple"></i> Estadísticas</a>
+<button data-open-merchant-settings="" type="button"><i aria-hidden="true" class="fa-solid fa-gear"></i> Ajustes</button>
+</nav><div class="panel-summary grid-3">
+<div class="metric-card">
+<strong id="metric-status">—</strong>
+<span>Estado</span>
+</div>
+<div class="metric-card">
+<strong id="metric-orders">—</strong>
+<span>Pedidos registrados</span>
+</div>
+<div class="metric-card">
+<strong id="metric-rating">—</strong>
+<span>Calificación</span>
+</div>
+</div><section class="panel-orders">
+<div class="merchant-orders-heading">
+<div>
+<h3>Pedidos recibidos <span class="merchant-pending-badge" hidden="" id="merchant-pending-badge"></span></h3>
+<p class="merchant-orders-sync" id="merchant-orders-sync">Consultando pedidos...</p>
+</div>
+<div class="merchant-orders-actions">
+<button aria-pressed="false" class="secondary-btn" id="merchant-order-sound" type="button">Activar sonido</button>
+<button class="secondary-btn" id="merchant-orders-refresh" type="button">Actualizar</button>
+</div>
+</div>
+<div class="saved-items" id="merchant-orders"></div>
+</section><div class="panel-products-header">
+<h3>Productos</h3>
+<button class="secondary-btn" id="add-product-btn" type="button">+ Nuevo producto</button>
+</div><div class="panel-products" id="panel-products"></div><section aria-label="Cupones del restaurante" class="merchant-promotion-section" id="merchant-promotions">
+<h3><i aria-hidden="true" class="fa-solid fa-ticket"></i> Cupones y promociones</h3>
+<p class="upload-hint">Los descuentos los asume el restaurante. Toque no recibe pagos. Para promocionar un combo, créalo como producto en el menú.</p>
+<form class="merchant-promo-form" id="promo-form">
+<input id="promo-id" type="hidden"/>
+<div class="split-row">
+<div class="field-group"><label for="promo-code">Código del cupón</label><input autocomplete="off" id="promo-code" maxlength="24" pattern="[A-Za-z0-9_-]{4,24}" placeholder="DANNYS10" required=""/></div>
+<div class="field-group"><label for="promo-name">Nombre de la promoción</label><input id="promo-name" maxlength="100" placeholder="10% de bienvenida" required=""/></div>
+</div>
+<div class="split-row">
+<div class="field-group"><label for="promo-type">Tipo de descuento</label>
+<select id="promo-type"><option value="PORCENTAJE">Porcentaje (%)</option><option value="MONTO">Valor fijo ($)</option><option value="ENVIO_GRATIS">Domicilio gratis</option></select>
+</div>
+<div class="field-group"><label for="promo-value" id="promo-value-label">Descuento (%)</label><input id="promo-value" max="100" min="1" required="" step="1" type="number" value="10"/></div>
+</div>
+<div class="field-group"><label for="promo-min">Compra mínima del producto ($)</label><input id="promo-min" max="100000000" min="0" required="" step="1" type="number" value="0"/></div>
+<div class="split-row">
+<div class="field-group"><label for="promo-start">Vigente desde (opcional)</label><input id="promo-start" type="datetime-local"/></div>
+<div class="field-group"><label for="promo-end">Vigente hasta (opcional)</label><input id="promo-end" type="datetime-local"/></div>
+</div>
+<div class="split-row">
+<div class="field-group"><label for="promo-limit">Usos totales (vacío = sin límite)</label><input id="promo-limit" max="100000" min="1" placeholder="Sin límite" step="1" type="number"/></div>
+<div class="field-group"><label for="promo-user-limit">Usos por cliente (opcional)</label><input id="promo-user-limit" max="100" min="1" placeholder="Sin límite" step="1" type="number"/></div>
+</div>
+<label class="checkbox-field" for="promo-enabled"><input checked="" id="promo-enabled" type="checkbox"/> <span>Promoción activa</span></label>
+<p aria-live="polite" class="login-message" id="promo-form-status" role="status"></p>
+<div class="promo-buttons"><button class="primary-btn" id="promo-save" type="submit">Guardar cupón</button><button class="secondary-btn" id="promo-clear" type="button">Nuevo / limpiar</button></div>
+</form>
+<h4>Mis promociones</h4>
+<div aria-live="polite" class="merchant-promo-list" id="merchant-promo-list"></div>
+</section><details class="merchant-analytics" id="merchant-analytics" open="">
+<summary class="merchant-analytics-summary">
+<span><i aria-hidden="true" class="fa-solid fa-chart-column"></i> Estadísticas del restaurante</span>
+<span class="merchant-analytics-fold">Ver / ocultar</span>
+</summary>
+<div class="merchant-analytics-body">
+<p class="merchant-analytics-note">Datos reales de los pedidos registrados en Toque. Los valores de pedidos entregados son <strong>estimados</strong>: Toque no cobra ni confirma pagos.</p>
+<div class="merchant-analytics-toolbar">
+<label for="merchant-analytics-period">Periodo</label>
+<select id="merchant-analytics-period">
+<option value="hoy">Hoy</option>
+<option value="7d">Últimos 7 días</option>
+<option selected="" value="30d">Últimos 30 días</option>
+<option value="todo">Todo el historial</option>
+</select>
+<button class="secondary-btn" id="merchant-analytics-refresh" type="button">Actualizar</button>
+</div>
+<p aria-live="polite" class="merchant-analytics-status" id="merchant-analytics-status" role="status"></p>
+<div class="merchant-analytics-content" id="merchant-analytics-content"></div>
+</div>
+</details><details class="panel-settings" id="panel-settings"><summary><span><i aria-hidden="true" class="fa-solid fa-sliders"></i> Configuración del restaurante</span><small>Horarios, zonas, datos y medios de pago</small></summary><form class="panel-form" id="panel-form">
+<div class="field-group">
+<label for="panel-name">Nombre del restaurante</label>
+<input id="panel-name" maxlength="120" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-category">Categoría</label>
+<input id="panel-category" maxlength="80" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-whatsapp">WhatsApp</label>
+<input id="panel-whatsapp" maxlength="20" required="" type="tel"/>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-apertura">Apertura</label>
+<input id="panel-apertura" required="" type="time"/>
+</div>
+<div class="field-group">
+<label for="panel-cierre">Cierre</label>
+<input id="panel-cierre" required="" type="time"/>
+</div>
+</div>
+<fieldset class="weekly-schedule">
+<legend>Horario de atención por día</legend>
+<label class="weekly-schedule-master">
+<input id="panel-weekly-enabled" type="checkbox"/>
                 Activar horarios distintos según el día
               </label>
-              <p class="upload-hint">Si lo dejas desactivado se usa el horario general indicado arriba todos los días. Horarios en Colombia.</p>
-              <div id="panel-weekly-days" hidden>
-                  <div class="weekly-hour-row" data-weekday="lunes">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="lunes" checked />Lunes</label>
-                    <input type="time" data-day-open="lunes" aria-label="Apertura del Lunes" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="lunes" aria-label="Cierre del Lunes" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="martes">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="martes" checked />Martes</label>
-                    <input type="time" data-day-open="martes" aria-label="Apertura del Martes" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="martes" aria-label="Cierre del Martes" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="miercoles">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="miercoles" checked />Miércoles</label>
-                    <input type="time" data-day-open="miercoles" aria-label="Apertura del Miércoles" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="miercoles" aria-label="Cierre del Miércoles" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="jueves">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="jueves" checked />Jueves</label>
-                    <input type="time" data-day-open="jueves" aria-label="Apertura del Jueves" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="jueves" aria-label="Cierre del Jueves" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="viernes">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="viernes" checked />Viernes</label>
-                    <input type="time" data-day-open="viernes" aria-label="Apertura del Viernes" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="viernes" aria-label="Cierre del Viernes" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="sabado">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="sabado" checked />Sábado</label>
-                    <input type="time" data-day-open="sabado" aria-label="Apertura del Sábado" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="sabado" aria-label="Cierre del Sábado" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="domingo">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="domingo" checked />Domingo</label>
-                    <input type="time" data-day-open="domingo" aria-label="Apertura del Domingo" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="domingo" aria-label="Cierre del Domingo" value="22:00" />
-                  </div>
-                <small class="upload-hint">Para cerrar un día, desmarca su casilla. Se admiten horarios que pasan de medianoche (por ejemplo, 18:00 a 02:00).</small>
-              </div>
-            </fieldset>
-          <div class="split-row">
-              <div class="field-group">
-                <label for="panel-costo">Costo envío</label>
-                <input id="panel-costo" type="number" min="0" max="100000000" step="1" required />
-              </div>
-              <div class="field-group">
-                <label for="panel-tiempo">Tiempo estimado</label>
-                <input id="panel-tiempo" type="text" maxlength="40" required />
-              </div>
-            </div>
-            <div class="field-group">
-              <label for="panel-zonas">Tarifas por barrios o sectores (opcional)</label>
-              <textarea id="panel-zonas" rows="4" maxlength="4000" placeholder="Centro|1000&#10;Barrio Norte|2500"></textarea>
-              <small>Una zona por línea: Nombre|Tarifa. Sin el signo $, ni separadores de miles. Si lo dejas vacío, se usa la tarifa general. Si configuras zonas, el cliente tendrá que elegir una de ellas.</small>
-            </div>
-            <div class="field-group">
-              <label for="panel-cobertura">Cobertura / municipio</label>
-              <input id="panel-cobertura" type="text" maxlength="100" required />
-            </div>
-            <div class="split-row">
-              <div class="field-group">
-                <label for="panel-pais">País</label>
-                <input id="panel-pais" type="text" maxlength="100" required />
-              </div>
-              <div class="field-group">
-                <label for="panel-departamento">Departamento</label>
-                <input id="panel-departamento" type="text" maxlength="100" required />
-              </div>
-            </div>
-            <div class="field-group">
-              <label for="panel-contacto">Responsable</label>
-              <input id="panel-contacto" type="text" maxlength="120" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-direccion">Dirección del restaurante</label>
-              <input id="panel-direccion" type="text" maxlength="400" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-logo">URL HTTPS del logo (opcional)</label>
-              <input id="panel-logo" type="url" maxlength="2000" />
-              <label for="panel-logo-file">O subir logo desde tu equipo</label>
-              <input id="panel-logo-file" type="file" accept="image/jpeg,image/png,image/webp" />
-              <img id="panel-logo-preview" class="upload-preview" alt="Vista previa del logo" hidden />
-            </div>
-            <div class="field-group">
-              <label for="panel-portada">URL HTTPS de portada (opcional)</label>
-              <input id="panel-portada" type="url" maxlength="2000" />
-              <label for="panel-portada-file">O subir portada desde tu equipo</label>
-              <input id="panel-portada-file" type="file" accept="image/jpeg,image/png,image/webp" />
-              <img id="panel-portada-preview" class="upload-preview upload-preview-wide" alt="Vista previa de la portada" hidden />
-            </div>
-            <div class="split-row">
-              <div class="field-group">
-                <label for="panel-estado">Estado</label>
-                <select id="panel-estado">
-                  <option value="Automatico">Según horario</option>
-                  <option value="Abierto">Abierto</option>
-                  <option value="Cerrado">Cerrado</option>
-                </select>
-              </div>
-              <label class="field-group checkbox-field" for="panel-envio-gratis">
-                <span>Envío gratis</span>
-                <input id="panel-envio-gratis" type="checkbox" />
-              </label>
-            </div>
-                        <fieldset class="weekly-pause">
-              <legend>Pausa temporal de pedidos</legend>
-              <p id="panel-pause-status" class="upload-hint">Sin pausa activa.</p>
-              <div class="pause-buttons">
-                <button class="secondary-btn" type="button" data-pause-minutes="30">Pausar 30 min</button>
-                <button class="secondary-btn" type="button" data-pause-minutes="60">Pausar 60 min</button>
-                <button class="secondary-btn" type="button" data-pause-minutes="0">Reanudar</button>
-              </div>
-              <small class="upload-hint">La pausa se desactiva automáticamente. Si estableces Estado: Cerrado, el comercio seguirá cerrado hasta que cambies ese estado.</small>
-            </fieldset>
-          <div class="split-row">
-              <div class="field-group">
-                <label for="panel-lat">Latitud (opcional)</label>
-                <input id="panel-lat" type="number" step="any" min="-90" max="90" />
-              </div>
-              <div class="field-group">
-                <label for="panel-lng">Longitud (opcional)</label>
-                <input id="panel-lng" type="number" step="any" min="-180" max="180" />
-              </div>
-            </div>
-            <div class="field-group">
-              <label for="panel-radio">Radio de entrega (km, opcional)</label>
-              <input id="panel-radio" type="number" min="0.1" max="200" step="any" />
-            </div>
-            <p id="panel-message" class="login-message" aria-live="polite"></p>
-            <button class="primary-btn" type="submit">Guardar configuración</button>
-          </form>
-
-
-
-<section id="merchant-payment-settings" class="merchant-payment-settings" aria-label="Medios de pago del restaurante">
-  <h3><i class="fa-solid fa-money-bill-transfer" aria-hidden="true"></i> Medios de pago del restaurante</h3>
-  <p class="upload-hint">El comprador paga directamente a tu negocio. PideYa no recauda dinero ni verifica transferencias. El efectivo siempre está disponible.</p>
-  <form id="merchant-payment-form" class="merchant-promo-form">
-    <label class="payment-enable"><input type="checkbox" id="merchant-transfer-enabled" /> Permitir pago por transferencia</label>
-    <div class="split-row">
-      <div class="field-group"><label for="merchant-transfer-provider">Entidad o billetera</label><input id="merchant-transfer-provider" type="text" maxlength="80" placeholder="Nequi, Daviplata, Bancolombia..." /></div>
-      <div class="field-group"><label for="merchant-transfer-number">Número de cuenta o celular</label><input id="merchant-transfer-number" type="text" maxlength="80" autocomplete="off" placeholder="Número donde recibes pagos" /></div>
-    </div>
-    <div class="field-group"><label for="merchant-transfer-holder">Titular (opcional)</label><input id="merchant-transfer-holder" type="text" maxlength="120" autocomplete="off" /></div>
-    <div class="field-group"><label for="merchant-transfer-instructions">Instrucciones para el comprador (opcional)</label><textarea id="merchant-transfer-instructions" maxlength="250" rows="2" placeholder="Confirma el pago directamente con nosotros"></textarea></div>
-    <p id="merchant-payment-status" class="login-message" role="status" aria-live="polite"></p>
-    <button id="merchant-payment-save" class="primary-btn" type="submit">Guardar medios de pago</button>
-  </form>
+<p class="upload-hint">Si lo dejas desactivado se usa el horario general indicado arriba todos los días. Horarios en Colombia.</p>
+<div hidden="" id="panel-weekly-days">
+<div class="weekly-hour-row" data-weekday="lunes">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="lunes" type="checkbox"/>Lunes</label>
+<input aria-label="Apertura del Lunes" data-day-open="lunes" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Lunes" data-day-close="lunes" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="martes">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="martes" type="checkbox"/>Martes</label>
+<input aria-label="Apertura del Martes" data-day-open="martes" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Martes" data-day-close="martes" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="miercoles">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="miercoles" type="checkbox"/>Miércoles</label>
+<input aria-label="Apertura del Miércoles" data-day-open="miercoles" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Miércoles" data-day-close="miercoles" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="jueves">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="jueves" type="checkbox"/>Jueves</label>
+<input aria-label="Apertura del Jueves" data-day-open="jueves" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Jueves" data-day-close="jueves" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="viernes">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="viernes" type="checkbox"/>Viernes</label>
+<input aria-label="Apertura del Viernes" data-day-open="viernes" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Viernes" data-day-close="viernes" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="sabado">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="sabado" type="checkbox"/>Sábado</label>
+<input aria-label="Apertura del Sábado" data-day-open="sabado" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Sábado" data-day-close="sabado" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="domingo">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="domingo" type="checkbox"/>Domingo</label>
+<input aria-label="Apertura del Domingo" data-day-open="domingo" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Domingo" data-day-close="domingo" type="time" value="22:00"/>
+</div>
+<small class="upload-hint">Para cerrar un día, desmarca su casilla. Se admiten horarios que pasan de medianoche (por ejemplo, 18:00 a 02:00).</small>
+</div>
+</fieldset>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-costo">Costo envío</label>
+<input id="panel-costo" max="100000000" min="0" required="" step="1" type="number"/>
+</div>
+<div class="field-group">
+<label for="panel-tiempo">Tiempo estimado</label>
+<input id="panel-tiempo" maxlength="40" required="" type="text"/>
+</div>
+</div>
+<div class="field-group">
+<label for="panel-zonas">Tarifas por barrios o sectores (opcional)</label>
+<textarea id="panel-zonas" maxlength="4000" placeholder="Centro|1000
+Barrio Norte|2500" rows="4"></textarea>
+<small>Una zona por línea: Nombre|Tarifa. Sin el signo $, ni separadores de miles. Si lo dejas vacío, se usa la tarifa general. Si configuras zonas, el cliente tendrá que elegir una de ellas.</small>
+</div>
+<div class="field-group">
+<label for="panel-cobertura">Cobertura / municipio</label>
+<input id="panel-cobertura" maxlength="100" required="" type="text"/>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-pais">País</label>
+<input id="panel-pais" maxlength="100" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-departamento">Departamento</label>
+<input id="panel-departamento" maxlength="100" required="" type="text"/>
+</div>
+</div>
+<div class="field-group">
+<label for="panel-contacto">Responsable</label>
+<input id="panel-contacto" maxlength="120" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-direccion">Dirección del restaurante</label>
+<input id="panel-direccion" maxlength="400" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-logo">URL HTTPS del logo (opcional)</label>
+<input id="panel-logo" maxlength="2000" type="url"/>
+<label for="panel-logo-file">O subir logo desde tu equipo</label>
+<input accept="image/jpeg,image/png,image/webp" id="panel-logo-file" type="file"/>
+<img alt="Vista previa del logo" class="upload-preview" hidden="" id="panel-logo-preview"/>
+</div>
+<div class="field-group">
+<label for="panel-portada">URL HTTPS de portada (opcional)</label>
+<input id="panel-portada" maxlength="2000" type="url"/>
+<label for="panel-portada-file">O subir portada desde tu equipo</label>
+<input accept="image/jpeg,image/png,image/webp" id="panel-portada-file" type="file"/>
+<img alt="Vista previa de la portada" class="upload-preview upload-preview-wide" hidden="" id="panel-portada-preview"/>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-estado">Estado</label>
+<select id="panel-estado">
+<option value="Automatico">Según horario</option>
+<option value="Abierto">Abierto</option>
+<option value="Cerrado">Cerrado</option>
+</select>
+</div>
+<label class="field-group checkbox-field" for="panel-envio-gratis">
+<span>Envío gratis</span>
+<input id="panel-envio-gratis" type="checkbox"/>
+</label>
+</div>
+<fieldset class="weekly-pause">
+<legend>Pausa temporal de pedidos</legend>
+<p class="upload-hint" id="panel-pause-status">Sin pausa activa.</p>
+<div class="pause-buttons">
+<button class="secondary-btn" data-pause-minutes="30" type="button">Pausar 30 min</button>
+<button class="secondary-btn" data-pause-minutes="60" type="button">Pausar 60 min</button>
+<button class="secondary-btn" data-pause-minutes="0" type="button">Reanudar</button>
+</div>
+<small class="upload-hint">La pausa se desactiva automáticamente. Si estableces Estado: Cerrado, el comercio seguirá cerrado hasta que cambies ese estado.</small>
+</fieldset>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-lat">Latitud (opcional)</label>
+<input id="panel-lat" max="90" min="-90" step="any" type="number"/>
+</div>
+<div class="field-group">
+<label for="panel-lng">Longitud (opcional)</label>
+<input id="panel-lng" max="180" min="-180" step="any" type="number"/>
+</div>
+</div>
+<div class="field-group">
+<label for="panel-radio">Radio de entrega (km, opcional)</label>
+<input id="panel-radio" max="200" min="0.1" step="any" type="number"/>
+</div>
+<p aria-live="polite" class="login-message" id="panel-message"></p>
+<button class="primary-btn" type="submit">Guardar configuración</button>
+</form><section aria-label="Medios de pago del restaurante" class="merchant-payment-settings" id="merchant-payment-settings">
+<h3><i aria-hidden="true" class="fa-solid fa-money-bill-transfer"></i> Medios de pago del restaurante</h3>
+<p class="upload-hint">El comprador paga directamente a tu negocio. Toque no recauda dinero ni verifica transferencias. El efectivo siempre está disponible.</p>
+<form class="merchant-promo-form" id="merchant-payment-form">
+<label class="payment-enable"><input id="merchant-transfer-enabled" type="checkbox"/> Permitir pago por transferencia</label>
+<div class="split-row">
+<div class="field-group"><label for="merchant-transfer-provider">Entidad o billetera</label><input id="merchant-transfer-provider" maxlength="80" placeholder="Nequi, Daviplata, Bancolombia..." type="text"/></div>
+<div class="field-group"><label for="merchant-transfer-number">Número de cuenta o celular</label><input autocomplete="off" id="merchant-transfer-number" maxlength="80" placeholder="Número donde recibes pagos" type="text"/></div>
+</div>
+<div class="field-group"><label for="merchant-transfer-holder">Titular (opcional)</label><input autocomplete="off" id="merchant-transfer-holder" maxlength="120" type="text"/></div>
+<div class="field-group"><label for="merchant-transfer-instructions">Instrucciones para el comprador (opcional)</label><textarea id="merchant-transfer-instructions" maxlength="250" placeholder="Confirma el pago directamente con nosotros" rows="2"></textarea></div>
+<p aria-live="polite" class="login-message" id="merchant-payment-status" role="status"></p>
+<button class="primary-btn" id="merchant-payment-save" type="submit">Guardar medios de pago</button>
+</form>
+</section></details>
+</div>
 </section>
-
-<section id="merchant-promotions" class="merchant-promotion-section" aria-label="Cupones del restaurante">
-  <h3><i class="fa-solid fa-ticket" aria-hidden="true"></i> Cupones y promociones</h3>
-  <p class="upload-hint">Los descuentos los asume el restaurante. PideYa no recibe pagos. Para promocionar un combo, créalo como producto en el menú.</p>
-  <form id="promo-form" class="merchant-promo-form">
-    <input type="hidden" id="promo-id" />
-    <div class="split-row">
-      <div class="field-group"><label for="promo-code">Código del cupón</label><input id="promo-code" required maxlength="24" pattern="[A-Za-z0-9_-]{4,24}" placeholder="DANNYS10" autocomplete="off" /></div>
-      <div class="field-group"><label for="promo-name">Nombre de la promoción</label><input id="promo-name" required maxlength="100" placeholder="10% de bienvenida" /></div>
-    </div>
-    <div class="split-row">
-      <div class="field-group"><label for="promo-type">Tipo de descuento</label>
-        <select id="promo-type"><option value="PORCENTAJE">Porcentaje (%)</option><option value="MONTO">Valor fijo ($)</option><option value="ENVIO_GRATIS">Domicilio gratis</option></select>
-      </div>
-      <div class="field-group"><label id="promo-value-label" for="promo-value">Descuento (%)</label><input id="promo-value" type="number" min="1" max="100" step="1" value="10" required /></div>
-    </div>
-    <div class="field-group"><label for="promo-min">Compra mínima del producto ($)</label><input id="promo-min" type="number" min="0" max="100000000" step="1" value="0" required /></div>
-    <div class="split-row">
-      <div class="field-group"><label for="promo-start">Vigente desde (opcional)</label><input id="promo-start" type="datetime-local" /></div>
-      <div class="field-group"><label for="promo-end">Vigente hasta (opcional)</label><input id="promo-end" type="datetime-local" /></div>
-    </div>
-    <div class="split-row">
-      <div class="field-group"><label for="promo-limit">Usos totales (vacío = sin límite)</label><input id="promo-limit" type="number" min="1" max="100000" step="1" placeholder="Sin límite" /></div>
-      <div class="field-group"><label for="promo-user-limit">Usos por cliente (opcional)</label><input id="promo-user-limit" type="number" min="1" max="100" step="1" placeholder="Sin límite" /></div>
-    </div>
-    <label class="checkbox-field" for="promo-enabled"><input id="promo-enabled" type="checkbox" checked /> <span>Promoción activa</span></label>
-    <p id="promo-form-status" class="login-message" role="status" aria-live="polite"></p>
-    <div class="promo-buttons"><button type="submit" class="primary-btn" id="promo-save">Guardar cupón</button><button type="button" class="secondary-btn" id="promo-clear">Nuevo / limpiar</button></div>
-  </form>
-  <h4>Mis promociones</h4>
-  <div id="merchant-promo-list" class="merchant-promo-list" aria-live="polite"></div>
-</section>
-
-          <div class="panel-products-header">
-            <h3>Productos</h3>
-            <button id="add-product-btn" class="secondary-btn" type="button">+ Nuevo plato</button>
-          </div>
-          <div id="panel-products" class="panel-products"></div>
-          <section class="panel-orders">
-            <div class="merchant-orders-heading">
-              <div>
-                <h3>Pedidos recibidos <span id="merchant-pending-badge" class="merchant-pending-badge" hidden></span></h3>
-                <p id="merchant-orders-sync" class="merchant-orders-sync">Consultando pedidos...</p>
-              </div>
-              <div class="merchant-orders-actions">
-                <button class="secondary-btn" type="button" id="merchant-order-sound" aria-pressed="false">Activar sonido</button>
-                <button class="secondary-btn" type="button" id="merchant-orders-refresh">Actualizar</button>
-              </div>
-            </div>
-            <div id="merchant-orders" class="saved-items"></div>
-          </section>
-        </div>
-      </section>
-
-      <nav class="bottom-nav" aria-label="Navegación principal">
-        <button class="nav-item active" type="button" data-target="lobby">
-          <i class="fa-solid fa-house"></i>
-          <span>Inicio</span>
-        </button>
-        <button class="nav-item" type="button" data-target="favorites">
-          <i class="fa-regular fa-heart"></i>
-          <span>Favoritos</span>
-        </button>
-        <button class="floating-center-btn" id="btn-quick-actions" type="button" aria-label="Abrir atajos" aria-haspopup="true" aria-expanded="false">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-        <button class="nav-item" type="button" data-target="orders">
-          <i class="fa-solid fa-receipt"></i>
-          <span>Pedidos</span>
-        </button>
-        <button class="nav-item" type="button" data-target="profile">
-          <i class="fa-solid fa-user"></i>
-          <span>Perfil</span>
-        </button>
-        <div id="quick-actions" class="quick-actions" aria-label="Atajos" hidden>
-          <button type="button" data-quick-action="search"><i class="fa-solid fa-magnifying-glass"></i><span>Buscar restaurantes</span></button>
-          <button type="button" data-quick-action="cart"><i class="fa-solid fa-cart-shopping"></i><span>Ver carrito</span><strong id="quick-cart-count">0</strong></button>
-          <button type="button" data-quick-action="favorites"><i class="fa-regular fa-heart"></i><span>Favoritos</span></button>
-          <button type="button" id="quick-merchant-action" data-quick-action="merchant" hidden><i class="fa-solid fa-store"></i><span>Panel del restaurante</span></button>
-        </div>
-      </nav>
-    </div>
-
-    <dialog id="location-dialog" class="app-dialog">
-      <form id="location-form" method="dialog">
-        <h2>Ubicación de entrega</h2>
-        <div class="field-group">
-          <label for="delivery-city">Ciudad / municipio</label>
-          <select id="delivery-city" required></select>
-        </div>
-        <div class="field-group">
-          <label for="delivery-address">Dirección de entrega</label>
-          <input id="delivery-address" type="text" maxlength="400" autocomplete="street-address" />
-        </div>
-        <button id="gps-location-btn" class="secondary-btn" type="button">Usar GPS</button>
-        <button id="gps-clear-btn" class="secondary-btn" type="button">Quitar GPS guardado</button>
-        <p id="gps-location-status" class="login-message" aria-live="polite"></p>
-        <p class="location-attribution">Al usar GPS, se envían tus coordenadas a <a href="https://nominatim.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap Nominatim</a> para detectar el municipio. Datos © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p>
-        <div class="dialog-actions">
-          <button class="secondary-btn" type="button" data-close-dialog="location-dialog">Cancelar</button>
-          <button class="primary-btn" type="submit">Guardar ubicación</button>
-        </div>
-      </form>
-    </dialog>
-
-    <dialog id="cart-dialog" class="app-dialog">
-      <form id="checkout-form">
-        <h2>Tu carrito</h2>
-        <div id="cart-items" class="saved-items"></div>
-        <div class="cart-totals">
-          <span>Subtotal <strong id="cart-subtotal">$0</strong></span>
-          <span>Ahorro <strong id="cart-savings">$0</strong></span>
-          <span>Domicilio <strong id="cart-shipping">$0</strong></span>
-          <span class="promo-discount-total" id="cart-promo-row" hidden>Descuento por cupón <strong id="cart-promo-discount">−$0</strong></span>
-          <span>Total estimado <strong id="cart-total">$0</strong></span>
-        </div>
-        <div class="field-group">
-          <label for="checkout-city">Ciudad de entrega</label>
-          <select id="checkout-city" required></select>
-        </div>
-        <div id="checkout-zones" aria-live="polite"></div>
-        <section class="checkout-promotions" id="checkout-promotions" aria-label="Cupones de descuento"></section>
-        <section id="checkout-payment-methods" class="checkout-payment-methods" aria-label="Forma de pago"></section>
-        <div class="field-group">
-          <label for="checkout-address">Dirección exacta</label>
-          <input id="checkout-address" type="text" maxlength="400" autocomplete="street-address" required />
-        </div>
-        <p id="checkout-message" class="login-message" aria-live="polite"></p>
-        <div id="checkout-links" class="saved-items"></div>
-        <div class="dialog-actions">
-          <button class="secondary-btn" type="button" data-close-dialog="cart-dialog">Seguir comprando</button>
-          <button id="checkout-submit" class="primary-btn" type="submit">Preparar pedido</button>
-        </div>
-      </form>
-    </dialog>
-
-    <!-- Ficha del producto: solo el contenido central se desplaza.
+<nav aria-label="Navegación principal" class="bottom-nav" id="bottom-nav">
+<button class="nav-item active" data-target="lobby" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3V10Z"></path></svg>
+<span>Inicio</span>
+</button>
+<button class="nav-item" data-target="favorites" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"></path></svg>
+<span>Favoritos</span>
+</button>
+<button aria-expanded="false" aria-haspopup="true" aria-label="Abrir atajos" class="floating-center-btn" id="btn-quick-actions" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+</button>
+<button class="nav-item" data-target="orders" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 3h16v19l-4-2-4 2-4-2-4 2V3Z"></path><path d="M8 8h8M8 12h8M8 16h4"></path></svg>
+<span>Pedidos</span>
+</button>
+<button class="nav-item" data-target="profile" type="button">
+<svg aria-hidden="true" class="ui-icon" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+<span>Perfil</span>
+</button>
+<div aria-label="Atajos" class="quick-actions" hidden="" id="quick-actions">
+<button data-quick-action="search" type="button"><i class="fa-solid fa-magnifying-glass"></i><span>Buscar restaurantes</span></button>
+<button data-quick-action="cart" type="button"><i class="fa-solid fa-cart-shopping"></i><span>Ver carrito</span><strong id="quick-cart-count">0</strong></button>
+<button data-quick-action="favorites" type="button"><i class="fa-regular fa-heart"></i><span>Favoritos</span></button>
+<button data-quick-action="merchant" hidden="" id="quick-merchant-action" type="button"><i class="fa-solid fa-store"></i><span>Panel del restaurante</span></button>
+</div>
+</nav>
+<!-- En pantallas táctiles, este pequeño botón permite recuperar la navegación al desplazarse. -->
+<button
+  class="bottom-nav-reveal"
+  id="bottom-nav-reveal"
+  type="button"
+  aria-controls="bottom-nav"
+  aria-expanded="true"
+  aria-label="Mostrar menú de navegación"
+>
+  <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></svg>
+  <span>Menú</span>
+</button>
+</div>
+<dialog class="app-dialog" id="location-dialog">
+<form id="location-form" method="dialog">
+<h2>Ubicación de entrega</h2>
+<div class="field-group">
+<label for="delivery-city">Ciudad / municipio</label>
+<select id="delivery-city" required=""></select>
+</div>
+<div class="field-group">
+<label for="delivery-address">Dirección de entrega</label>
+<input autocomplete="street-address" id="delivery-address" maxlength="400" type="text"/>
+</div>
+<button class="secondary-btn" id="gps-location-btn" type="button">Usar GPS</button>
+<button class="secondary-btn" id="gps-clear-btn" type="button">Quitar GPS guardado</button>
+<p aria-live="polite" class="login-message" id="gps-location-status"></p>
+<p class="location-attribution">Al usar GPS, se envían tus coordenadas a <a href="https://nominatim.openstreetmap.org/" rel="noopener noreferrer" target="_blank">OpenStreetMap Nominatim</a> para detectar el municipio. Datos © <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">OpenStreetMap contributors</a>.</p>
+<div class="dialog-actions">
+<button class="secondary-btn" data-close-dialog="location-dialog" type="button">Cancelar</button>
+<button class="primary-btn" type="submit">Guardar ubicación</button>
+</div>
+</form>
+</dialog>
+<dialog class="app-dialog" id="cart-dialog">
+<form id="checkout-form">
+<h2>Tu carrito</h2>
+<div class="saved-items" id="cart-items"></div>
+<div class="cart-totals">
+<span>Subtotal <strong id="cart-subtotal">$0</strong></span>
+<span>Ahorro <strong id="cart-savings">$0</strong></span>
+<span>Domicilio <strong id="cart-shipping">$0</strong></span>
+<span class="promo-discount-total" hidden="" id="cart-promo-row">Descuento por cupón <strong id="cart-promo-discount">−$0</strong></span>
+<span>Total estimado <strong id="cart-total">$0</strong></span>
+</div>
+<div class="field-group">
+<label for="checkout-city">Ciudad de entrega</label>
+<select id="checkout-city" required=""></select>
+</div>
+<div aria-live="polite" id="checkout-zones"></div>
+<section aria-label="Cupones de descuento" class="checkout-promotions" id="checkout-promotions"></section>
+<section aria-label="Forma de pago" class="checkout-payment-methods" id="checkout-payment-methods"></section>
+<div class="field-group">
+<label for="checkout-address">Dirección exacta</label>
+<input autocomplete="street-address" id="checkout-address" maxlength="400" required="" type="text"/>
+</div>
+<p aria-live="polite" class="login-message" id="checkout-message"></p>
+<div class="saved-items" id="checkout-links"></div>
+<div class="dialog-actions">
+<button class="secondary-btn" data-close-dialog="cart-dialog" type="button">Seguir comprando</button>
+<button class="primary-btn" id="checkout-submit" type="submit">Preparar pedido</button>
+</div>
+</form>
+</dialog>
+<!-- Ficha del producto: solo el contenido central se desplaza.
          La X y la compra permanecen visibles. -->
-    <dialog id="product-detail-dialog" class="app-dialog product-detail-dialog" aria-labelledby="product-detail-title" aria-describedby="product-detail-description">
-      <button type="button" class="product-detail-close" data-close-dialog="product-detail-dialog" aria-label="Cerrar detalle del producto">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-      </button>
-      <div id="product-detail-scroll" class="product-detail-scroll" tabindex="-1">
-        <div class="product-detail-media">
-          <div class="product-detail-image-box">
-            <img id="product-detail-image" alt="Fotografía del producto" />
-            <div id="product-detail-image-fallback" class="product-detail-image-fallback" hidden>
-              <i class="fa-regular fa-image" aria-hidden="true"></i>
-              <span>Imagen no disponible</span>
-            </div>
-          </div>
-        </div>
-        <div class="product-detail-body">
-          <p id="product-detail-restaurant" class="product-detail-restaurant"></p>
-          <h2 id="product-detail-title"></h2>
-          <p id="product-detail-category" class="product-detail-category"></p>
-          <h3 class="product-detail-description-label">Descripción</h3>
-          <p id="product-detail-description" class="product-detail-description"></p>
-          <section id="product-customization" class="product-customization" aria-label="Personalizar producto"></section>
-        </div>
-      </div>
-      <div class="product-detail-footer">
-        <div class="product-detail-price-row">
-          <strong id="product-detail-price"></strong>
-          <del id="product-detail-old-price" hidden></del>
-        </div>
-        <button id="product-detail-add" class="primary-btn product-detail-add" type="button">Agregar al carrito</button>
-        <p id="product-detail-feedback" class="login-message" aria-live="polite"></p>
-      </div>
-    </dialog>
-
-    <dialog id="product-dialog" class="app-dialog">
-      <form id="product-form">
-        <h2 id="product-dialog-title">Nuevo producto</h2>
-        <input id="product-id" type="hidden" />
-        <div class="field-group">
-          <label for="product-name">Nombre</label>
-          <input id="product-name" type="text" maxlength="120" required />
-        </div>
-        <div class="field-group">
-          <label for="product-description">Descripción</label>
-          <textarea id="product-description" maxlength="1000"></textarea>
-        </div>
-        <div class="split-row">
-          <div class="field-group">
-            <label for="product-price">Precio de oferta</label>
-            <input id="product-price" type="number" min="1" max="100000000" step="1" required />
-          </div>
-          <div class="field-group">
-            <label for="product-previous-price">Precio normal</label>
-            <input id="product-previous-price" type="number" min="0" max="100000000" step="1" />
-          </div>
-        </div>
-        <div class="field-group">
-          <label for="product-category">Categoría</label>
-          <input id="product-category" type="text" maxlength="80" />
-        </div>
-        <fieldset class="merchant-customization-fields">
-          <legend>Personalización del producto (opcional)</legend>
-          <p class="upload-hint">Configura lo que el cliente puede elegir. El precio adicional se suma al precio del producto.</p>
-          <label for="product-sizes">Tamaños: uno por línea (Nombre|Precio adicional)</label>
-          <textarea id="product-sizes" rows="3" placeholder="Normal|0&#10;Grande|5000"></textarea>
-          <label for="product-extras">Extras: uno por línea (Nombre|Precio adicional)</label>
-          <textarea id="product-extras" rows="3" placeholder="Queso|2000&#10;Tocineta|3000"></textarea>
-          <label for="product-ingredients">Ingredientes que el comprador puede quitar (separados por coma)</label>
-          <textarea id="product-ingredients" rows="2" placeholder="Tomate, cebolla, lechuga"></textarea>
-        </fieldset>
-        <div class="field-group">
-          <label for="product-image">URL HTTPS de la foto (opcional)</label>
-          <input id="product-image" type="url" maxlength="2000" />
-          <label for="product-image-file">O subir foto desde tu equipo</label>
-          <input id="product-image-file" type="file" accept="image/jpeg,image/png,image/webp" />
-          <img id="product-image-preview" class="upload-preview" alt="Vista previa del producto" hidden />
-          <small class="upload-hint">JPG, PNG o WebP · máximo 5 MB. La imagen elegida reemplaza la URL al guardar.</small>
-        </div>
-        <label class="checkbox-field" for="product-available">
-          <span>Disponible para clientes</span>
-          <input id="product-available" type="checkbox" checked />
-        </label>
-        <p id="product-message" class="login-message" aria-live="polite"></p>
-        <div class="dialog-actions">
-          <button class="secondary-btn" type="button" data-close-dialog="product-dialog">Cancelar</button>
-          <button id="product-save" class="primary-btn" type="submit">Guardar producto</button>
-        </div>
-      </form>
-    </dialog>
-
-    <dialog id="password-update-dialog" class="app-dialog">
-      <form id="password-update-form">
-        <h2>Actualizar contraseña</h2>
-        <div class="field-group">
-          <label for="new-account-password">Nueva contraseña</label>
-          <input id="new-account-password" type="password" minlength="8" autocomplete="new-password" required />
-        </div>
-        <p id="password-update-message" class="login-message" aria-live="polite"></p>
-        <button id="password-update-submit" class="primary-btn" type="submit">Guardar contraseña</button>
-      </form>
-    </dialog>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="app.js"></script>
-  </body>
+<dialog aria-describedby="product-detail-description" aria-labelledby="product-detail-title" class="app-dialog product-detail-dialog" id="product-detail-dialog">
+<button aria-label="Cerrar detalle del producto" class="product-detail-close" data-close-dialog="product-detail-dialog" type="button">
+<i aria-hidden="true" class="fa-solid fa-xmark"></i>
+</button>
+<div class="product-detail-scroll" id="product-detail-scroll" tabindex="-1">
+<div class="product-detail-media">
+<div class="product-detail-image-box">
+<img alt="Fotografía del producto" decoding="async" id="product-detail-image"/>
+<div class="product-detail-image-fallback" hidden="" id="product-detail-image-fallback">
+<i aria-hidden="true" class="fa-regular fa-image"></i>
+<span>Imagen no disponible</span>
+</div>
+</div>
+</div>
+<div class="product-detail-body">
+<p class="product-detail-restaurant" id="product-detail-restaurant"></p>
+<h2 id="product-detail-title"></h2>
+<p class="product-detail-category" id="product-detail-category"></p>
+<h3 class="product-detail-description-label">Descripción</h3>
+<p class="product-detail-description" id="product-detail-description"></p>
+<section aria-label="Personalizar producto" class="product-customization" id="product-customization"></section>
+</div>
+</div>
+<div class="product-detail-footer">
+<div class="product-detail-price-row">
+<strong id="product-detail-price"></strong>
+<del hidden="" id="product-detail-old-price"></del>
+</div>
+<button class="primary-btn product-detail-add" id="product-detail-add" type="button">Agregar al carrito</button>
+<p aria-live="polite" class="login-message" id="product-detail-feedback"></p>
+</div>
+</dialog>
+<dialog class="app-dialog" id="product-dialog">
+<form id="product-form">
+<h2 id="product-dialog-title">Nuevo producto</h2>
+<input id="product-id" type="hidden"/>
+<div class="field-group">
+<label for="product-name">Nombre</label>
+<input id="product-name" maxlength="120" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="product-description">Descripción</label>
+<textarea id="product-description" maxlength="1000"></textarea>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="product-price">Precio de oferta</label>
+<input id="product-price" max="100000000" min="1" required="" step="1" type="number"/>
+</div>
+<div class="field-group">
+<label for="product-previous-price">Precio normal</label>
+<input id="product-previous-price" max="100000000" min="0" step="1" type="number"/>
+</div>
+</div>
+<div class="field-group">
+<label for="product-category">Categoría</label>
+<input id="product-category" maxlength="80" type="text"/>
+</div>
+<fieldset class="merchant-customization-fields">
+<legend>Personalización del producto (opcional)</legend>
+<p class="upload-hint">Configura lo que el cliente puede elegir. El precio adicional se suma al precio del producto.</p>
+<label for="product-sizes">Tamaños: uno por línea (Nombre|Precio adicional)</label>
+<textarea id="product-sizes" placeholder="Normal|0
+Grande|5000" rows="3"></textarea>
+<label for="product-extras">Extras: uno por línea (Nombre|Precio adicional)</label>
+<textarea id="product-extras" placeholder="Queso|2000
+Tocineta|3000" rows="3"></textarea>
+<label for="product-ingredients">Ingredientes que el comprador puede quitar (separados por coma)</label>
+<textarea id="product-ingredients" placeholder="Tomate, cebolla, lechuga" rows="2"></textarea>
+</fieldset>
+<div class="field-group">
+<label for="product-image">URL HTTPS de la foto (opcional)</label>
+<input id="product-image" maxlength="2000" type="url"/>
+<label for="product-image-file">O subir foto desde tu equipo</label>
+<input accept="image/jpeg,image/png,image/webp" id="product-image-file" type="file"/>
+<img alt="Vista previa del producto" class="upload-preview" hidden="" id="product-image-preview"/>
+<small class="upload-hint">JPG, PNG o WebP · máximo 5 MB. La imagen elegida reemplaza la URL al guardar.</small>
+</div>
+<label class="checkbox-field" for="product-available">
+<span>Disponible para clientes</span>
+<input checked="" id="product-available" type="checkbox"/>
+</label>
+<p aria-live="polite" class="login-message" id="product-message"></p>
+<div class="dialog-actions">
+<button class="secondary-btn" data-close-dialog="product-dialog" type="button">Cancelar</button>
+<button class="primary-btn" id="product-save" type="submit">Guardar producto</button>
+</div>
+</form>
+</dialog>
+<dialog class="app-dialog" id="password-update-dialog">
+<form id="password-update-form">
+<h2>Actualizar contraseña</h2>
+<div class="field-group">
+<label for="new-account-password">Nueva contraseña</label>
+<input autocomplete="new-password" id="new-account-password" minlength="8" required="" type="password"/>
+</div>
+<p aria-live="polite" class="login-message" id="password-update-message"></p>
+<button class="primary-btn" id="password-update-submit" type="submit">Guardar contraseña</button>
+</form>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="app.js"></script>
+</body>
 </html>

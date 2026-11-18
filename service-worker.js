@@ -1,4 +1,4 @@
-const CACHE_NAME = "rapiya-v27";
+const CACHE_NAME = "toque-v31-barra-inferior";
 const ASSETS = [
   "./",
   "./index.html",
@@ -21,7 +21,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(keys
-        .filter((key) => key.startsWith("rapiya-") && key !== CACHE_NAME)
+        .filter((key) => (key.startsWith("rapiya-") || key.startsWith("toque-")) && key !== CACHE_NAME)
         .map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );

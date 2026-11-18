@@ -1,11 +1,11 @@
 {
-  "name": "RapiYa App",
-  "short_name": "RapiYa",
+  "name": "Toque — Restaurantes y domicilios",
+  "short_name": "Toque",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f5f7fb",
   "theme_color": "#ff5a36",
-  "description": "Marketplace de delivery mobile para restaurantes y clientes.",
+  "description": "Pide comida a restaurantes de tu ciudad y paga directamente al comercio.",
   "icons": [
     {
       "src": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=512&q=80",

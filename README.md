@@ -1,6 +1,6 @@
-# RapiYa App
+# Toque App
 
-Aplicación web mobile-first inspirada en marketplaces de delivery tipo DiDi Food / Rappi.
+Plataforma web adaptable a dispositivos móviles que conecta compradores y restaurantes. Los clientes pagan directamente a los restaurantes; Toque no procesa ni recauda pagos.
 
 ## Estructura
 
@@ -10,7 +10,7 @@ Aplicación web mobile-first inspirada en marketplaces de delivery tipo DiDi Foo
 - `app.js`: lógica principal del flujo de cliente y comercio
 - `manifest.json`: configuración de PWA
 - `service-worker.js`: cache mínimo para instalación
-- `api/index.js`: backend base para Vercel / Node.js
+- `api/index.js`: prototipo de servidor Node.js incluido por compatibilidad; no utilizar su autenticación de demostración para un despliegue público
 
 ## Requisitos
 
@@ -35,9 +35,9 @@ npm run dev
 
 El catálogo de cliente lee restaurantes desde `public.restaurantes` y productos disponibles desde `public.menus`. La configuración pública está en `supabase-config.js`; contiene la URL y la publishable key, nunca una secret key.
 
-1. Verifica que las tablas `restaurantes` y `menus` y sus columnas públicas coincidan con `supabase-schema.sql`; ejecuta ese archivo.
-2. Ejecuta `supabase-accounts.sql` para configurar Auth, perfiles y favoritos.
-3. Ejecuta `supabase-workflows.sql` para agregar permisos de comercio, solicitudes de aprobación, cobertura GPS, pedidos, calificaciones y sus políticas RLS.
+1. Verifica que las tablas `restaurantes` y `menus` y sus columnas públicas coincidan con `supabase-schema.sql`. **No ejecutes migraciones antiguas sobre una base en funcionamiento sin evaluar sus efectos.**
+2. Si se crea una base de datos nueva, revisa `supabase-accounts.sql` para configurar Auth, perfiles y favoritos.
+3. Si se crea una base nueva, revisa `supabase-workflows.sql` para agregar permisos de comercio, solicitudes de aprobación, cobertura GPS, pedidos, calificaciones y sus políticas RLS.
 4. Sirve la app por HTTP y abre `index.html`. Supabase JS y las operaciones del catálogo requieren conexión.
 
 La migración de flujos es aditiva: conserva las tablas de catálogo existentes y agrega columnas, tablas y funciones RPC. Revisa los nombres y tipos de las columnas existentes antes de ejecutarla; el SQL usa identificadores con mayúsculas y nombres como `Direccion exacta`. No pegues la `service_role` key en el navegador.
@@ -70,8 +70,13 @@ Los clientes pueden calificar un restaurante después de que el comercio marque 
 
 La tabla existente `usuarios` y sus PIN no se usan para autenticar en esta versión. Las métricas históricas de clics de WhatsApp y la administración de banners del ejemplo de Apps Script no se trasladaron porque no son necesarias para el flujo actual.
 
-## Vercel
+## Trabajo habitual con VS Code, GitHub y Supabase
 
-- Despliegue del backend desde la carpeta `api`
-- Servir la app estática desde `index.html`
-- Conectar con Supabase para autenticación y datos
+- Editar los archivos en Visual Studio Code.
+- Comprobar el frontend con Live Server durante el desarrollo.
+- Mantener el código versionado en GitHub.
+- Utilizar Supabase para autenticación, datos y almacenamiento.
+- Antes de publicar, elegir y configurar un alojamiento y dominio adecuados.
+
+**Cambio de marca:** el nombre público es **Toque**. Se conservan identificadores técnicos heredados (`RAPIYA_SUPABASE_CONFIG`, claves de almacenamiento local, bucket `pideya-imagenes`, funciones SQL y nombres de migraciones) para no interrumpir los datos ni la sesión de usuarios existentes. No es necesario volver a ejecutar migraciones SQL por este cambio de nombre.
+

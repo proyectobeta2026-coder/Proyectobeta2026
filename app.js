@@ -519,14 +519,20 @@ function restaurantCatalogCard(restaurant, rank = 0) {
   const orderText = `${delivered.toLocaleString("es-CO")} ${delivered === 1 ? "pedido entregado" : "pedidos entregados"}`;
   const favorite = isFavorite("restaurante", restaurant.id);
   return `
-    <article class="restaurant-card ${rank ? "is-top-restaurant" : ""}" data-id="${escapeHtml(restaurant.id)}" aria-label="Abrir restaurante ${escapeHtml(restaurant.nombre)}">
+    <article class="restaurant-card ${rank ? "is-top-restaurant" : ""}" data-id="${escapeHtml(restaurant.id)}" role="button" tabindex="0" aria-label="Abrir restaurante ${escapeHtml(restaurant.nombre)}">
       <button class="favorite-toggle ${favorite ? "is-favorite" : ""}" type="button"
         data-favorite-type="restaurante" data-favorite-id="${escapeHtml(restaurant.id)}"
         aria-label="Guardar restaurante en favoritos" aria-pressed="${favorite}">
         <i class="fa-${favorite ? "solid" : "regular"} fa-heart"></i>
       </button>
       ${rank ? `<span class="restaurant-rank" aria-label="Puesto ${rank} en pedidos entregados">#${rank} Top pedidos</span>` : ""}
-      <img src="${escapeHtml(safeImageUrl(restaurant.cover))}" alt="Portada de ${escapeHtml(restaurant.nombre)}" loading="lazy" />
+      <div class="restaurant-card-media">
+        <img src="${escapeHtml(safeImageUrl(restaurant.cover))}" alt="Portada de ${escapeHtml(restaurant.nombre)}" loading="lazy" ${safeImageUrl(restaurant.cover) ? "" : "hidden"} />
+        <div class="restaurant-image-fallback" role="img" aria-label="Portada alternativa para ${escapeHtml(restaurant.nombre)}">
+          <span class="restaurant-fallback-mark">R<span>Y</span></span>
+          <small>Restaurante</small>
+        </div>
+      </div>
       <div class="card-body">
         <h4>${escapeHtml(restaurant.nombre)}</h4>
         <p>
@@ -570,19 +576,32 @@ function renderRestaurants() {
   topSection.hidden = top.length === 0;
   topCity.textContent = state.delivery.city || "tu ciudad";
   topGrid.innerHTML = top.map((restaurant, index) => restaurantCatalogCard(restaurant, index + 1)).join("");
-  otherHeading.hidden = top.length === 0 || remaining.length === 0;
+  otherHeading.hidden = remaining.length === 0;
+  const otherTitle = otherHeading.querySelector("h3");
+  if (otherTitle) otherTitle.textContent = top.length ? "Otros restaurantes" : "Restaurantes disponibles";
 
   const emptyMessage = search
     ? "No encontramos resultados para tu búsqueda."
     : state.delivery.city
       ? `No hay restaurantes disponibles en ${escapeHtml(state.delivery.city)}.`
-      : "No hay restaurantes para mostrar.";
+      : "Aún no hay restaurantes disponibles. Vuelve a consultar más tarde.";
   grid.innerHTML = remaining.map((restaurant) => restaurantCatalogCard(restaurant)).join("")
     || (top.length ? "" : `<div class="catalog-empty">${emptyMessage}</div>`);
 
   [topGrid, grid].forEach((container) => {
     container.querySelectorAll(".restaurant-card").forEach((card) => {
       card.addEventListener("click", () => openRestaurant(card.dataset.id));
+      card.addEventListener("keydown", (event) => {
+        if (event.target !== card || !["Enter", " "].includes(event.key)) return;
+        event.preventDefault();
+        openRestaurant(card.dataset.id);
+      });
+      const cover = card.querySelector(".restaurant-card-media img");
+      const fallback = card.querySelector(".restaurant-image-fallback");
+      cover?.addEventListener("error", () => {
+        cover.hidden = true;
+        if (fallback) fallback.hidden = false;
+      });
     });
     container.querySelectorAll(".favorite-toggle").forEach((button) => {
       button.addEventListener("click", (event) => {
@@ -1087,24 +1106,30 @@ function renderRestaurantDetail() {
       ordersCount.textContent = `${n.toLocaleString("es-CO")} ${n === 1 ? "pedido entregado" : "pedidos entregados"}`;
     }
   }
-  meta.textContent = `${restaurant.categoria} • ⭐ ${restaurant.rating || "Sin votos"} • ${restaurant.votos || 0} votos`;
+  const votes = Number(restaurant.votos) || 0;
+  meta.textContent = votes > 0
+    ? `${restaurant.categoria} • ★ ${Number(restaurant.rating || 0).toFixed(1)} (${votes} ${votes === 1 ? "valoración" : "valoraciones"})`
+    : `${restaurant.categoria} • Sin valoraciones todavía`;
   delivery.textContent = `Entrega: ${restaurant.tiempo}`;
   price.textContent = restaurant.envioGratis
     ? "Envío gratis"
     : zonesForRestaurant(restaurant.id).length ? "Envío según sector" : `Envío ${formatCurrency(restaurant.costoEnvio)}`;
-  promo.textContent = restaurant.promo;
+  // Solo comunicar beneficios realmente configurados por el restaurante.
+  const shippingNote = promo.closest(".promo-shipping-banner");
+  if (shippingNote) shippingNote.hidden = !restaurant.envioGratis;
+  promo.textContent = restaurant.envioGratis ? "Envío gratis" : "";
 
   const favoriteButton = document.getElementById("btn-favorite-restaurant");
   if (favoriteButton) {
     const favorite = isFavorite("restaurante", restaurant.id);
     favoriteButton.classList.toggle("is-favorite", favorite);
     favoriteButton.setAttribute("aria-pressed", String(favorite));
-    favoriteButton.innerHTML = `<i class="fa-${favorite ? "solid" : "regular"} fa-heart"></i>`;
+    favoriteButton.innerHTML = `<svg viewBox="0 0 24 24" fill="${favorite ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="ui-icon"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>`;
   }
 
   const items = (MENU[restaurant.id] || []).filter((product) => product.disponible !== false);
-  count.textContent = `${items.length} platos`;
-  list.innerHTML = items.map((product) => `
+  count.textContent = `${items.length} ${items.length === 1 ? "producto" : "productos"}`;
+  list.innerHTML = items.length ? items.map((product) => `
     <article class="dish-card">
       <img src="${escapeHtml(safeImageUrl(product.img))}" alt="${escapeHtml(product.nombre)}" loading="lazy" />
       <div class="dish-copy">
@@ -1119,7 +1144,7 @@ function renderRestaurantDetail() {
       <button class="add-btn" type="button" data-product="${escapeHtml(product.id)}" ${restaurant.abierto ? "" : "disabled"} aria-label="Agregar ${escapeHtml(product.nombre)}">+</button>
       <button class="favorite-toggle ${isFavorite("producto", product.id) ? "is-favorite" : ""}" type="button" data-favorite-type="producto" data-favorite-id="${escapeHtml(product.id)}" aria-label="Guardar producto en favoritos" aria-pressed="${isFavorite("producto", product.id)}"><i class="fa-${isFavorite("producto", product.id) ? "solid" : "regular"} fa-heart"></i></button>
     </article>
-  `).join("");
+  `).join("") : '<p class="catalog-empty">Este restaurante no tiene productos disponibles en este momento.</p>';
 
   list.querySelectorAll("[data-open-product]").forEach((button) => {
     button.addEventListener("click", () => openProductDetails(button.dataset.openProduct, restaurant.id));
@@ -1340,7 +1365,7 @@ function renderCartPromotions(restaurantIds) {
   const box = document.getElementById("checkout-promotions");
   if (!box) return;
   if (!restaurantIds.length) { box.replaceChildren(); return; }
-  box.innerHTML = `<h3>Cupones y promociones</h3><p class="upload-hint">Cada restaurante define sus descuentos. El cliente paga directamente al restaurante; PideYa no recauda dinero.</p>` +
+  box.innerHTML = `<h3>Cupones y promociones</h3><p class="upload-hint">Cada restaurante define sus descuentos. El cliente paga directamente al restaurante; Toque no recauda dinero.</p>` +
     restaurantIds.map((restaurantId) => {
       const restaurant = RESTAURANTS.find((item) => item.id === restaurantId);
       const money = promoMoneyForRestaurant(restaurantId);
@@ -1384,7 +1409,7 @@ function renderCartPromotions(restaurantIds) {
 }
 
 
-// PideYa - medios de pago informativos. Los montos definitivos se guardan
+// Toque - medios de pago informativos. Los montos definitivos se guardan
 // mediante la RPC crear_pedido_con_pago, nunca son confiados al navegador.
 function checkoutPaymentSelection(restaurantId) {
   if (!state.paymentSelections[restaurantId]) {
@@ -1484,7 +1509,7 @@ function renderCheckoutPaymentFields(restaurantIds) {
     if (selection.metodo === "TRANSFERENCIA" && !available) selection.metodo = "";
     return `<fieldset class="checkout-payment-card" data-payment-restaurant="${escapeHtml(id)}">
       <legend>Forma de pago · ${escapeHtml(restaurant?.nombre || "Restaurante")}</legend>
-      <p class="payment-note">El dinero se entrega directamente al restaurante. PideYa no recauda ni verifica pagos.</p>
+      <p class="payment-note">El dinero se entrega directamente al restaurante. Toque no recauda ni verifica pagos.</p>
       <label for="payment-method-${escapeHtml(id)}">¿Cómo pagarás?</label>
       <select id="payment-method-${escapeHtml(id)}" data-pay-method="${escapeHtml(id)}" required>
         <option value="" ${selection.metodo === "" ? "selected" : ""}>Selecciona un medio de pago</option>
@@ -1547,7 +1572,7 @@ async function loadMerchantPaymentSettings(restaurantId, preview) {
   field("merchant-transfer-number",cfg.numero);
   field("merchant-transfer-holder",cfg.titular);
   field("merchant-transfer-instructions",cfg.instrucciones);
-  if (status) status.textContent = "Las transferencias se realizan directamente a tu cuenta; PideYa no administra el dinero.";
+  if (status) status.textContent = "Las transferencias se realizan directamente a tu cuenta; Toque no administra el dinero.";
 }
 
 async function saveMerchantPaymentSettings(event) {
@@ -1828,7 +1853,7 @@ async function prepareCheckout(event) {
         ? `\nUbicación: https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${state.delivery.lat},${state.delivery.lng}`)}`
         : "";
       const text = [
-        `Nuevo pedido en RapiYa · #${data.id}`,
+        `Nuevo pedido en Toque · #${data.id}`,
         `Restaurante: ${data.restaurante}`,
         `Entrega: ${city} · ${address}${mapsLink}`,
         "",
@@ -1850,7 +1875,7 @@ async function prepareCheckout(event) {
           `Cuenta/número: ${data.transferencia_numero || "Consultar al restaurante"}`,
           ...(data.transferencia_titular ? [`Titular: ${data.transferencia_titular}`] : []),
           ...(data.transferencia_instrucciones ? [`Instrucciones: ${data.transferencia_instrucciones}`] : []),
-          "El restaurante confirma el pago; PideYa no recibe dinero."
+          "El restaurante confirma el pago; Toque no recibe dinero."
         ]),
         "Por favor confirma la aceptación del pedido."
       ].join("\n");
@@ -1956,6 +1981,608 @@ function renderFavorites() {
   });
 }
 
+
+// ===== Complementos recuperados del ZIP antiguo, adaptados a la versión actual =====
+const BANNERS = [];
+
+function renderHomeBanners() {
+  const container = document.getElementById("home-banner");
+  if (!container) return;
+
+  container.replaceChildren();
+  const activeBanners = BANNERS.filter((item) => item.activo);
+  const fallback = document.getElementById("home-fallback-banner");
+  if (fallback) fallback.hidden = activeBanners.length > 0;
+  if (!activeBanners.length) return;
+
+  const track = document.createElement("div");
+  track.className = "home-banner-track";
+  track.setAttribute("role", "region");
+  track.setAttribute("aria-label", "Promociones");
+
+  activeBanners.forEach((banner) => {
+    const section = document.createElement("section");
+    section.className = "hero-banner";
+    section.setAttribute("aria-label", banner.titulo);
+    const content = document.createElement("div");
+    content.className = "banner-content";
+
+    if (banner.etiqueta) {
+      const tag = document.createElement("span");
+      tag.className = "banner-tag";
+      tag.textContent = banner.etiqueta;
+      content.append(tag);
+    }
+
+    const title = document.createElement("h2");
+    title.textContent = banner.titulo;
+    content.append(title);
+    if (banner.descripcion) {
+      const description = document.createElement("p");
+      description.className = "banner-description";
+      description.textContent = banner.descripcion;
+      content.append(description);
+    }
+
+    if (banner.texto_boton && isHttpUrl(banner.enlace_url)) {
+      const link = document.createElement("a");
+      link.className = "banner-cta";
+      link.textContent = banner.texto_boton;
+      link.href = banner.enlace_url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      content.append(link);
+    }
+
+    const image = document.createElement("img");
+    image.src = banner.imagen_url;
+    image.alt = banner.titulo;
+    image.loading = "lazy";
+    section.append(content, image);
+    track.append(section);
+  });
+  container.append(track);
+}
+
+
+function isHttpUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+
+async function loadHomeBanners() {
+  if (!supabaseClient || !document.getElementById("home-banner")) return;
+
+  const { data, error } = await supabaseClient
+    .from("banners")
+    .select("id,titulo,descripcion,etiqueta,texto_boton,enlace_url,imagen_url,orden,activo")
+    .eq("activo", true)
+    .order("orden", { ascending: true })
+    .limit(10);
+
+  if (error) {
+    console.warn("Banners pendientes de configurar en Supabase:", error.message || error);
+    return;
+  }
+
+  BANNERS.splice(0, BANNERS.length, ...data);
+  renderHomeBanners();
+}
+
+
+function resetAdminBannerForm() {
+  const form = document.getElementById("admin-banner-form");
+  if (!form) return;
+  form.reset();
+  document.getElementById("admin-banner-id").value = "";
+  document.getElementById("admin-banner-order").value = "0";
+  document.getElementById("admin-banner-active").checked = true;
+  document.getElementById("btn-cancel-banner-edit").hidden = true;
+}
+
+
+function editAdminBanner(banner) {
+  document.getElementById("admin-banner-id").value = banner.id;
+  document.getElementById("admin-banner-title-input").value = banner.titulo;
+  document.getElementById("admin-banner-description").value = banner.descripcion || "";
+  document.getElementById("admin-banner-tag").value = banner.etiqueta || "";
+  document.getElementById("admin-banner-button").value = banner.texto_boton || "";
+  document.getElementById("admin-banner-link").value = banner.enlace_url || "";
+  document.getElementById("admin-banner-image-url").value = banner.imagen_url;
+  document.getElementById("admin-banner-order").value = String(banner.orden || 0);
+  document.getElementById("admin-banner-active").checked = banner.activo;
+  document.getElementById("admin-banner-image").value = "";
+  document.getElementById("btn-cancel-banner-edit").hidden = false;
+  document.getElementById("admin-banner-title-input").focus();
+}
+
+
+function renderAdminBanners(banners) {
+  const list = document.getElementById("admin-banner-list");
+  if (!list) return;
+  list.replaceChildren();
+
+  if (!banners.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "Todavía no hay banners configurados.";
+    list.append(empty);
+    return;
+  }
+
+  banners.forEach((banner) => {
+    const row = document.createElement("article");
+    row.className = "product-row admin-banner-row";
+    const image = document.createElement("img");
+    image.src = banner.imagen_url;
+    image.alt = "";
+    const details = document.createElement("div");
+    details.className = "details";
+    const copy = document.createElement("div");
+    const title = document.createElement("strong");
+    title.className = "name";
+    title.textContent = banner.titulo;
+    const status = document.createElement("p");
+    status.className = "price";
+    status.textContent = `${banner.activo ? "Visible" : "Oculto"} · Orden ${banner.orden}`;
+    copy.append(title, status);
+    details.append(image, copy);
+
+    const actions = document.createElement("div");
+    actions.className = "product-actions";
+    const editButton = document.createElement("button");
+    editButton.className = "small-btn";
+    editButton.type = "button";
+    editButton.textContent = "Editar";
+    editButton.addEventListener("click", () => editAdminBanner(banner));
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "small-btn";
+    deleteButton.type = "button";
+    deleteButton.textContent = "Eliminar";
+    deleteButton.addEventListener("click", async () => {
+      if (window.confirm(`¿Eliminar el banner "${banner.titulo}"?`)) {
+        await deleteAdminBanner(banner);
+      }
+    });
+    actions.append(editButton, deleteButton);
+    row.append(details, actions);
+    list.append(row);
+  });
+}
+
+
+async function loadAdminBanners() {
+  const message = document.getElementById("admin-banner-message");
+  if (!message || state.profile?.rol !== "admin" || !supabaseClient) return;
+
+  const { data, error } = await supabaseClient
+    .from("banners")
+    .select("id,titulo,descripcion,etiqueta,texto_boton,enlace_url,imagen_url,orden,activo")
+    .order("orden", { ascending: true });
+
+  if (error) {
+    console.error("No se pudieron cargar los banners para administración:", error.message || error);
+    message.textContent = "No se pudieron cargar los banners. Ejecuta pideya-17-banners-y-perfiles.sql en Supabase.";
+    return;
+  }
+
+  renderAdminBanners(data);
+}
+
+
+async function saveAdminBanner(event) {
+  event.preventDefault();
+  const message = document.getElementById("admin-banner-message");
+  if (state.profile?.rol !== "admin" || !supabaseClient) {
+    message.textContent = "Solo una cuenta administradora puede gestionar banners.";
+    return;
+  }
+
+  const id = document.getElementById("admin-banner-id").value;
+  const imageInput = document.getElementById("admin-banner-image");
+  let imageUrl = document.getElementById("admin-banner-image-url").value.trim();
+  let uploadedPath = null;
+  let previousImageUrl = null;
+  const submitButton = event.submitter;
+  if (submitButton) submitButton.disabled = true;
+
+  try {
+    if (imageInput.files[0]) {
+      const uploaded = await uploadMediaImage(imageInput.files[0], `banners/${state.user.id}`);
+      imageUrl = uploaded.url;
+      uploadedPath = uploaded.path;
+    }
+    if (!imageUrl) {
+      message.textContent = "Sube una imagen o proporciona su URL.";
+      return;
+    }
+    if (!uploadedPath && !isHttpUrl(imageUrl)) {
+      message.textContent = "La URL de la imagen debe comenzar con http:// o https://.";
+      return;
+    }
+
+    const linkUrl = document.getElementById("admin-banner-link").value.trim();
+    if (linkUrl && !isHttpUrl(linkUrl)) {
+      message.textContent = "El enlace del botón debe comenzar con http:// o https://.";
+      return;
+    }
+
+    if (id) {
+      const { data: previousBanner, error: previousBannerError } = await supabaseClient
+        .from("banners")
+        .select("imagen_url")
+        .eq("id", id)
+        .maybeSingle();
+      if (previousBannerError) throw previousBannerError;
+      previousImageUrl = previousBanner?.imagen_url || null;
+    }
+
+    const payload = {
+      titulo: document.getElementById("admin-banner-title-input").value.trim(),
+      descripcion: document.getElementById("admin-banner-description").value.trim(),
+      etiqueta: document.getElementById("admin-banner-tag").value.trim(),
+      texto_boton: document.getElementById("admin-banner-button").value.trim(),
+      enlace_url: linkUrl,
+      imagen_url: imageUrl,
+      orden: Number(document.getElementById("admin-banner-order").value || 0),
+      activo: document.getElementById("admin-banner-active").checked
+    };
+    const query = id
+      ? supabaseClient.from("banners").update(payload).eq("id", id)
+      : supabaseClient.from("banners").insert(payload);
+    const { error } = await query;
+    if (error) {
+      if (uploadedPath) await removeMediaImage(uploadedPath);
+      console.error("No se pudo guardar el banner:", error.message || error);
+      message.textContent = "No se pudo guardar el banner. Revisa los datos e inténtalo de nuevo.";
+      return;
+    }
+
+    message.textContent = "Banner guardado.";
+    resetAdminBannerForm();
+    const previousPath = getMediaPathFromUrl(previousImageUrl);
+    if (previousPath && previousPath !== uploadedPath) await removeMediaImage(previousPath);
+    await Promise.all([loadAdminBanners(), loadHomeBanners()]);
+  } catch (error) {
+    if (uploadedPath) await removeMediaImage(uploadedPath);
+    console.error("No se pudo guardar el banner:", error.message || error);
+    message.textContent = error.message || "No se pudo subir la imagen o guardar el banner.";
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+}
+
+
+async function deleteAdminBanner(banner) {
+  const message = document.getElementById("admin-banner-message");
+  const { error } = await supabaseClient.from("banners").delete().eq("id", banner.id);
+  if (error) {
+    console.error("No se pudo eliminar el banner:", error.message || error);
+    message.textContent = "No se pudo eliminar el banner. Inténtalo de nuevo.";
+    return;
+  }
+
+  const imagePath = getMediaPathFromUrl(banner.imagen_url);
+  if (imagePath) await removeMediaImage(imagePath);
+  message.textContent = "Banner eliminado.";
+  await Promise.all([loadAdminBanners(), loadHomeBanners()]);
+}
+
+
+async function uploadMediaImage(file, folder) {
+  if (!supabaseClient || !state.user) throw new Error("Inicia sesión para subir imágenes.");
+  if (!file || !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    throw new Error("Elige una imagen JPG, PNG o WebP.");
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("La imagen debe pesar 5 MB o menos.");
+  }
+
+  const extension = file.type.split("/")[1].replace("jpeg", "jpg");
+  const identifier = window.crypto?.randomUUID
+    ? window.crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const fileName = `${identifier}.${extension}`;
+  const path = `${folder}/${fileName}`;
+  const { data, error } = await supabaseClient.storage
+    .from("pideya-imagenes")
+    .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });
+  if (error) throw error;
+
+  const { data: publicUrl } = supabaseClient.storage.from("pideya-imagenes").getPublicUrl(data.path);
+  return { path: data.path, url: publicUrl.publicUrl };
+}
+
+
+async function removeMediaImage(path) {
+  if (!supabaseClient || !path) return;
+  const { error } = await supabaseClient.storage.from("pideya-imagenes").remove([path]);
+  if (error) console.error("No se pudo eliminar la imagen anterior:", error.message || error);
+}
+
+
+function getMediaPathFromUrl(url) {
+  if (!url) return null;
+  try {
+    if (new URL(url).origin !== new URL(window.RAPIYA_SUPABASE_CONFIG.url).origin) return null;
+  } catch { return null; }
+  const marker = "/storage/v1/object/public/pideya-imagenes/";
+  const pathStart = url.indexOf(marker);
+  if (pathStart === -1) return null;
+  return decodeURIComponent(url.slice(pathStart + marker.length).split("?")[0]);
+}
+
+
+async function uploadCustomerAvatar(file) {
+  const message = document.getElementById("customer-avatar-message");
+  const preview = document.getElementById("customer-avatar-preview");
+  const initials = document.getElementById("customer-avatar-initials");
+  const fileInput = document.getElementById("customer-avatar-file");
+  if (!file) return;
+
+  try {
+    message.textContent = "Subiendo foto...";
+    fileInput.disabled = true;
+    const uploaded = await uploadMediaImage(file, `perfiles/${state.user.id}`);
+    const { data, error } = await supabaseClient
+      .from("perfiles")
+      .update({ avatar_url: uploaded.url })
+      .eq("user_id", state.user.id)
+      .select("avatar_url")
+      .maybeSingle();
+
+    if (error || !data) {
+      await removeMediaImage(uploaded.path);
+      throw error || new Error("No se encontró el perfil de la cuenta.");
+    }
+
+    const oldPath = getMediaPathFromUrl(state.profile?.avatar_url);
+    state.profile = { ...state.profile, avatar_url: data.avatar_url };
+    renderProfile();
+    preview.src = data.avatar_url;
+    preview.hidden = false;
+    initials.hidden = true;
+    message.textContent = "Foto de perfil actualizada.";
+    if (oldPath && oldPath !== uploaded.path) await removeMediaImage(oldPath);
+  } catch (error) {
+    console.error("No se pudo actualizar la foto de perfil:", error.message || error);
+    message.textContent = error.message || "No se pudo subir la foto. Inténtalo de nuevo.";
+  } finally {
+    fileInput.disabled = false;
+    fileInput.value = "";
+  }
+}
+
+
+function showCustomerProfilePanel(panelName) {
+  const panels = [...document.querySelectorAll(".customer-profile-panel")];
+  const selectedPanel = document.getElementById(`customer-${panelName}-panel`);
+  const shouldOpen = selectedPanel?.hidden;
+  panels.forEach((panel) => {
+    panel.hidden = panel !== selectedPanel || !shouldOpen;
+  });
+  if (shouldOpen) selectedPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+
+async function saveCustomerProfile(event) {
+  event.preventDefault();
+  const message = document.getElementById("customer-edit-message");
+  if (!supabaseClient || !state.user) {
+    message.textContent = "No se pudo conectar con el servicio de cuentas.";
+    return;
+  }
+
+  const nombre = document.getElementById("customer-name-input").value.trim();
+  const telefono = document.getElementById("customer-phone-input").value.trim();
+  if (nombre.length < 2 || nombre.length > 120 || telefono.length > 30) {
+    message.textContent = "Revisa el nombre y el teléfono antes de guardar.";
+    return;
+  }
+
+  const submitButton = event.submitter;
+  if (submitButton) submitButton.disabled = true;
+  message.textContent = "Guardando cambios...";
+  try {
+    const { data, error } = await supabaseClient
+      .from("perfiles")
+      .update({ nombre_completo: nombre, telefono: telefono || null })
+      .eq("user_id", state.user.id)
+      .select("nombre_completo,telefono")
+      .maybeSingle();
+
+    if (error || !data) {
+      console.error("No se pudo actualizar el perfil:", error?.message || "No se encontró el perfil de la cuenta.");
+      message.textContent = "No se pudieron guardar los cambios. Inténtalo de nuevo.";
+      return;
+    }
+
+    state.profile = { ...state.profile, ...data };
+    renderProfile();
+    message.textContent = "Cambios guardados.";
+  } catch (error) {
+    console.error("No se pudo actualizar el perfil:", error.message || error);
+    message.textContent = "No se pudieron guardar los cambios. Revisa tu conexión e inténtalo de nuevo.";
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+}
+
+
+async function resendProfileVerification() {
+  const message = document.getElementById("customer-security-message");
+  if (!supabaseClient || !state.user?.email) {
+    message.textContent = "No se pudo conectar con el servicio de cuentas.";
+    return;
+  }
+
+  try {
+    const emailRedirectTo = new URL("./index.html#profile", window.location.href).toString();
+    const { error } = await supabaseClient.auth.resend({
+      type: "signup",
+      email: state.user.email,
+      options: { emailRedirectTo }
+    });
+    if (error) {
+      console.error("No se pudo reenviar la verificación del correo:", error.message || error);
+      message.textContent = "No se pudo enviar el correo. Inténtalo de nuevo más tarde.";
+      return;
+    }
+    message.textContent = "Enlace enviado. Revisa tu correo y la carpeta de spam.";
+  } catch (error) {
+    console.error("No se pudo reenviar la verificación del correo:", error.message || error);
+    message.textContent = "No se pudo enviar el correo. Revisa tu conexión e inténtalo de nuevo.";
+  }
+}
+
+
+async function updateCustomerPassword(event) {
+  event.preventDefault();
+  const message = document.getElementById("customer-security-message");
+  const passwordInput = document.getElementById("customer-new-password");
+  if (!supabaseClient || !state.user) {
+    message.textContent = "No se pudo conectar con el servicio de cuentas.";
+    return;
+  }
+
+  const submitButton = event.submitter;
+  if (submitButton) submitButton.disabled = true;
+  message.textContent = "Actualizando contraseña...";
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ password: passwordInput.value });
+    if (error) {
+      console.error("No se pudo actualizar la contraseña:", error.message || error);
+      message.textContent = error.message || "No se pudo actualizar la contraseña.";
+      return;
+    }
+    passwordInput.value = "";
+    message.textContent = "Contraseña actualizada.";
+  } catch (error) {
+    console.error("No se pudo actualizar la contraseña:", error.message || error);
+    message.textContent = "No se pudo actualizar la contraseña. Revisa tu conexión e inténtalo de nuevo.";
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+}
+
+
+function showAuthRedirectStatus() {
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  const errorCode = hashParams.get("error_code");
+  const description = hashParams.get("error_description") || "";
+  if (errorCode !== "otp_expired" && !description.toLowerCase().includes("expired")) return false;
+
+  const message = document.getElementById("account-message");
+  if (message) message.textContent = "El enlace venció o ya fue utilizado. Escribe tu correo y pulsa Reenviar enlace de confirmación.";
+  window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}#profile`);
+  return true;
+}
+
+
+async function resendConfirmationEmail() {
+  const message = document.getElementById("account-message");
+  const resendButton = document.getElementById("btn-resend-confirmation");
+  const email = document.getElementById("account-email").value.trim();
+  if (!email) {
+    if (message) message.textContent = "Escribe tu correo para reenviar la confirmación.";
+    return;
+  }
+
+  resendButton.disabled = true;
+  try {
+    const emailRedirectTo = new URL("./index.html#profile", window.location.href).toString();
+    const { error } = await supabaseClient.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo }
+    });
+    if (message) {
+      const errorText = error?.message?.toLowerCase() || "";
+      message.textContent = errorText.includes("rate limit") || error?.status === 429
+        ? "Supabase limitó temporalmente los correos. Espera antes de volver a intentarlo; para producción configura un proveedor SMTP propio."
+        : error
+          ? "No se pudo reenviar el correo. Verifica la dirección e inténtalo de nuevo."
+          : "Solicitud enviada. Revisa tu correo y la carpeta de spam.";
+    }
+  } catch {
+    if (message) message.textContent = "No hay conexión para reenviar el correo. Inténtalo de nuevo.";
+  } finally {
+    resendButton.disabled = false;
+  }
+}
+
+
+function dismissAppSplash() {
+  const splash = document.getElementById("app-splash");
+  if (!splash) return;
+
+  splash.classList.add("is-hidden");
+  window.setTimeout(() => splash.remove(), 350);
+}
+
+
+function renderCustomerExtras() {
+  const box = document.getElementById("customer-profile-panel");
+  if (!box) return;
+  const isCustomer = Boolean(state.user && state.profile?.rol === "comprador");
+  box.hidden = !isCustomer;
+  document.getElementById("account-details")?.classList.toggle("is-customer-account", isCustomer);
+  const basicSignout = document.getElementById("btn-signout-user");
+  if (basicSignout) basicSignout.hidden = isCustomer;
+  if (!isCustomer) return;
+
+  const put = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const fill = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  const name = state.profile?.nombre_completo || state.user.user_metadata?.nombre_completo || "Cliente";
+  const phone = state.profile?.telefono || state.user.user_metadata?.telefono || "";
+  put("customer-profile-name", name);
+  fill("customer-name-input", name);
+  fill("customer-phone-input", phone);
+  put("customer-settings-email", state.user.email || "Correo no disponible");
+  put("customer-security-email", state.user.email || "Correo no disponible");
+  const initials = name.trim().split(/\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase() || "R";
+  put("customer-avatar-initials", initials);
+  const image = document.getElementById("customer-avatar-preview-image");
+  const preview = document.getElementById("customer-avatar-preview");
+  const initialsElement = document.getElementById("customer-avatar-initials");
+  const avatar = state.profile?.avatar_url || "";
+  if (image) { image.hidden = !avatar; if (avatar) image.src = avatar; else image.removeAttribute("src"); }
+  if (preview) { preview.hidden = !avatar; if (avatar) preview.src = avatar; else preview.removeAttribute("src"); }
+  if (initialsElement) initialsElement.hidden = Boolean(avatar);
+
+  const confirmed = Boolean(state.user.email_confirmed_at || state.user.confirmed_at);
+  put("customer-verification-title", confirmed ? "Correo verificado" : "Correo sin verificar");
+  put("customer-verification-copy", confirmed ? "Tu correo electrónico está confirmado." : "Confirma tu correo para verificar tu perfil.");
+  put("customer-security-verification", confirmed ? "Correo confirmado" : "Correo pendiente de confirmación");
+  document.getElementById("customer-verification")?.classList.toggle("is-verified", confirmed);
+  const resend = document.getElementById("btn-resend-profile-verification");
+  if (resend) resend.hidden = confirmed;
+}
+
+function renderRestaurantProfilePreview(restaurant) {
+  if (!restaurant) return;
+  const put = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const image = (id, url) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const safe = safeImageUrl(url);
+    if (safe) el.src = safe;
+    else el.removeAttribute("src");
+    el.hidden = !safe;
+  };
+  image("panel-profile-cover", restaurant.cover);
+  image("panel-profile-logo", restaurant.logo);
+  put("panel-profile-name", restaurant.nombre || "Mi restaurante");
+  put("panel-profile-category", restaurant.categoria || "Restaurante");
+  put("panel-profile-status", restaurant.abierto ? "Abierto" : "Cerrado");
+  document.getElementById("panel-profile-status")?.classList.toggle("is-closed", !restaurant.abierto);
+}
+
 function renderProfile() {
   const authForm = document.getElementById("account-auth-form");
   const details = document.getElementById("account-details");
@@ -1974,9 +2601,9 @@ function renderProfile() {
   if (adminCenter) adminCenter.hidden = state.profile?.rol !== "admin";
   const supportPanel = document.getElementById("pideya-support");
   if (supportPanel) supportPanel.hidden = !state.user || state.profile?.rol === "admin";
-  if (!state.user) return;
+  if (!state.user) { renderCustomerExtras(); return; }
 
-  document.getElementById("account-email-label").textContent = state.user.email || "Cuenta RapiYa";
+  document.getElementById("account-email-label").textContent = state.user.email || "Cuenta Toque";
   const isMerchant = state.profile?.rol === "restaurante" && state.profile.restaurante_id;
   const roleLabel = isMerchant
     ? "Cuenta de restaurante"
@@ -1987,12 +2614,13 @@ function renderProfile() {
           ? `Solicitud de restaurante rechazada: ${state.merchantApplication.motivo || "Revisa los datos y contacta a soporte."}`
           : "Cuenta de comprador"
       : state.profile?.rol === "admin"
-        ? "Administración de RapiYa"
+        ? "Administración de Toque"
       : "Perfil pendiente de configuración";
   document.getElementById("account-role-label").textContent = roleLabel;
   document.getElementById("btn-open-merchant-panel").hidden = !isMerchant;
   const quickMerchantAction = document.getElementById("quick-merchant-action");
   if (quickMerchantAction) quickMerchantAction.hidden = !isMerchant;
+  renderCustomerExtras();
 }
 
 const ORDER_STEPS = [
@@ -2122,7 +2750,7 @@ function repeatPreviousOrder(order) {
   }
   const restaurant = RESTAURANTS.find((entry) => entry.id === order?.id_restaurante);
   if (!restaurant) {
-    window.alert("Este restaurante ya no aparece en el catálogo de PideYa.");
+    window.alert("Este restaurante ya no aparece en el catálogo de Toque.");
     return false;
   }
   const city = String(order.ciudad || "").trim();
@@ -2443,7 +3071,7 @@ async function loadAdminApplications() {
   });
 }
 
-// PideYa / Paso 9: Administración con RPC de solo lectura y operaciones autorizadas
+// Toque / Paso 9: Administración con RPC de solo lectura y operaciones autorizadas
 // en el servidor. La clave secret nunca se utiliza en el navegador.
 async function loadPideyaAdminDashboard() {
   const status = document.getElementById("pideya-admin-status");
@@ -2471,7 +3099,7 @@ async function loadPideyaAdminDashboard() {
     container.innerHTML = (data.restaurantes || []).map((r) => `
       <article class="admin-restaurant-item" data-admin-restaurant="${escapeHtml(r.id)}">
         <div class="admin-restaurant-heading"><strong>${escapeHtml(r.nombre)}</strong>
-          <span class="${r.suspendido ? "admin-status-blocked" : "admin-status-normal"}">${r.suspendido ? "Suspendido" : "Activo en PideYa"}</span></div>
+          <span class="${r.suspendido ? "admin-status-blocked" : "admin-status-normal"}">${r.suspendido ? "Suspendido" : "Activo en Toque"}</span></div>
         <p>${escapeHtml(r.ciudad || "Sin ciudad")} · ${Number(r.pedidos || 0)} pedidos · ${Number(r.entregados || 0)} entregados</p>
         ${r.suspendido ? `<p>Motivo: ${escapeHtml(r.motivo || "No indicado")}</p>` : ""}
         <div class="admin-category-action">
@@ -2597,7 +3225,7 @@ function bindPideyaAdministration() {
       });
       if (error) throw error;
       form.reset();
-      message.textContent = "Reporte enviado a PideYa. Puedes consultar su estado abajo.";
+      message.textContent = "Reporte enviado a Toque. Puedes consultar su estado abajo.";
       await loadPideyaOwnReports();
     } catch (err) { message.textContent = `No se pudo enviar el reporte: ${err.message}`; }
     finally { button.disabled = false; }
@@ -2632,6 +3260,13 @@ async function loadAccountState() {
       console.error("No se pudo cargar el perfil:", profileResult.error.message || profileResult.error);
     } else {
       state.profile = profileResult.data;
+      if (state.profile?.rol === "comprador") {
+        const extras = await supabaseClient.from("perfiles")
+          .select("nombre_completo,telefono,avatar_url")
+          .eq("user_id", state.user.id).maybeSingle();
+        if (!extras.error && extras.data) state.profile = { ...state.profile, ...extras.data };
+        else if (extras.error) console.warn("Datos de perfil pendientes de migración:", extras.error.message || extras.error);
+      }
     }
 
     await loadMerchantApplication();
@@ -2654,7 +3289,10 @@ async function loadAccountState() {
     await loadCheckoutPaymentSettings();
     renderCartKeepingCheckoutFields();
   }
-  if (state.profile?.rol === "admin") await loadPideyaAdminDashboard();
+  if (state.profile?.rol === "admin") {
+    await loadPideyaAdminDashboard();
+    await loadAdminBanners();
+  }
   if (state.user && state.profile?.rol !== "admin") await loadPideyaOwnReports();
 
   if (document.body.dataset.page === "panel") {
@@ -2853,7 +3491,116 @@ function openAdminRestaurantPreview() {
   showView("view-panel");
 }
 
+// Barra inferior inteligente: al explorar se oculta y reaparece al necesitarla.
+function setupBottomNavAutoHide() {
+  const nav = document.getElementById("bottom-nav");
+  if (!nav) return; // El panel independiente del restaurante no tiene esta barra.
+
+  const revealButton = document.getElementById("bottom-nav-reveal");
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const touchMode = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+  let timer = null;
+  let previousScrollY = window.scrollY;
+  const quickMenuIsOpen = () => {
+    const menu = document.getElementById("quick-actions");
+    return Boolean(menu && !menu.hidden);
+  };
+
+  const show = () => {
+    window.clearTimeout(timer);
+    nav.classList.remove("is-hidden");
+    revealButton?.setAttribute("aria-expanded", "true");
+  };
+  const hide = () => {
+    // Nunca ocultar controles que estén siendo utilizados con el teclado,
+    // ni el menú de atajos cuando esté desplegado.
+    if (quickMenuIsOpen() || nav.contains(document.activeElement)) return;
+    nav.classList.add("is-hidden");
+    revealButton?.setAttribute("aria-expanded", "false");
+  };
+  const hideSoon = (delay = 450) => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(hide, delay);
+  };
+
+  nav.classList.add("toque-nav-auto-hide");
+  nav.addEventListener("pointerenter", show);
+  nav.addEventListener("pointerleave", () => {
+    if (finePointer) hideSoon();
+  });
+  nav.addEventListener("focusin", show);
+  nav.addEventListener("focusout", () => hideSoon(650));
+
+  // Tras tocar una opción de navegación, dejar libre la pantalla.
+  // Los accesos con Tab conservan el foco y nunca desaparecen inesperadamente.
+  nav.addEventListener("click", (event) => {
+    if (event.detail <= 0 || !event.target.closest("button")) return;
+    if (nav.contains(document.activeElement)) document.activeElement.blur();
+    hideSoon(touchMode ? 750 : 500);
+    if (touchMode) {
+      // Al cambiar de vista el navegador puede reajustar el scroll y mostrar
+      // la barra otra vez. Ocultarla después evita que tape el nuevo contenido.
+      window.setTimeout(() => { if (!quickMenuIsOpen()) hideSoon(200); }, 650);
+    }
+  });
+
+  revealButton?.addEventListener("click", () => {
+    show();
+    // Mantenemos el menú visible hasta que el usuario vuelva a navegar.
+  });
+
+  // Escritorio: acercar el cursor a los últimos 105 px de la pantalla
+  // revela la barra sin requerir otro clic.
+  if (finePointer) {
+    document.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
+      if (event.clientY >= window.innerHeight - 105) {
+        show();
+      } else if (!nav.matches(":hover") && !quickMenuIsOpen()) {
+        hideSoon();
+      }
+    }, { passive: true });
+    hideSoon(2400); // breve presentación inicial para descubrir los botones
+  } else if (touchMode) {
+    // Si el catálogo es corto y no hay desplazamiento, liberar también la pantalla.
+    hideSoon(3400);
+  }
+
+  // Celular: se oculta al bajar y vuelve al subir; el botón pequeño «Menú»
+  // sirve para abrirlo sin desplazarse.
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY;
+    const difference = y - previousScrollY;
+    if (Math.abs(difference) < 7) return;
+    previousScrollY = y;
+    if (difference > 0 && y > 85) {
+      window.clearTimeout(timer);
+      hide();
+    } else if (difference < 0 && touchMode) {
+      show();
+    }
+  }, { passive: true });
+}
+
 function bindNavigation() {
+  document.getElementById("customer-avatar-file")?.addEventListener("change", (event) => void uploadCustomerAvatar(event.currentTarget.files[0]));
+  document.getElementById("customer-edit-panel")?.addEventListener("submit", saveCustomerProfile);
+  document.getElementById("customer-password-form")?.addEventListener("submit", updateCustomerPassword);
+  document.querySelectorAll("[data-customer-panel]").forEach(button => {
+    button.addEventListener("click", () => showCustomerProfilePanel(button.dataset.customerPanel));
+  });
+  document.querySelectorAll("[data-close-profile-panel]").forEach(button => {
+    button.addEventListener("click", () => document.querySelectorAll(".customer-profile-panel").forEach(panel => { panel.hidden = true; }));
+  });
+  document.querySelectorAll("[data-open-customer-orders]").forEach(button => {
+    button.addEventListener("click", () => { showView("view-orders"); void renderOrders(); });
+  });
+  document.getElementById("btn-edit-profile")?.addEventListener("click", () => showCustomerProfilePanel("edit"));
+  document.getElementById("btn-settings-edit-profile")?.addEventListener("click", () => showCustomerProfilePanel("edit"));
+  document.getElementById("btn-resend-profile-verification")?.addEventListener("click", resendProfileVerification);
+  document.getElementById("admin-banner-form")?.addEventListener("submit", saveAdminBanner);
+  document.getElementById("btn-cancel-banner-edit")?.addEventListener("click", resetAdminBannerForm);
+  document.getElementById("btn-resend-confirmation")?.addEventListener("click", resendConfirmationEmail);
   const quickActions = document.getElementById("quick-actions");
   const quickButton = document.getElementById("btn-quick-actions");
   const closeQuickActions = () => {
@@ -2903,6 +3650,15 @@ function bindNavigation() {
   });
 
   document.getElementById("back-to-lobby")?.addEventListener("click", () => showView("view-lobby"));
+  // Los atajos del panel llevan a secciones reales. Abrimos Ajustes antes de desplazarnos.
+  document.querySelectorAll("[data-open-merchant-settings]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const settings = document.getElementById("panel-settings");
+      if (!settings) return;
+      settings.open = true;
+      settings.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
   document.getElementById("btn-carrito")?.addEventListener("click", openCart);
   document.getElementById("btn-location")?.addEventListener("click", openLocationDialog);
   document.getElementById("gps-location-btn")?.addEventListener("click", requestDeliveryGps);
@@ -2953,7 +3709,7 @@ function bindNavigation() {
   document.getElementById("btn-back-login")?.addEventListener("click", () => setAccountFormMode("login"));
   document.getElementById("btn-reset-password")?.addEventListener("click", resetAccountPassword);
   document.getElementById("password-update-form")?.addEventListener("submit", saveNewPassword);
-  document.getElementById("btn-signout-user")?.addEventListener("click", async () => {
+  const signOutPideya = async () => {
     await supabaseClient.auth.signOut();
     stopMerchantOrderMonitor();
     stopBuyerOrderRealtime();
@@ -2967,7 +3723,9 @@ function bindNavigation() {
     renderRestaurants();
     setAccountFormMode("login");
     showView("view-profile");
-  });
+  };
+  document.getElementById("btn-signout-user")?.addEventListener("click", signOutPideya);
+  document.getElementById("btn-signout-customer")?.addEventListener("click", signOutPideya);
   document.getElementById("btn-open-merchant-panel")?.addEventListener("click", openMerchantPanel);
   document.getElementById("btn-admin-preview-customer")?.addEventListener("click", () => {
     if (state.profile?.rol === "admin") showView("view-lobby");
@@ -3058,6 +3816,7 @@ async function renderBusinessPanel() {
   const panelProducts = document.getElementById("panel-products");
   const isAdminPreview = state.profile?.rol === "admin";
   if (!restaurant || !panelProducts || (!supabaseClient && !isAdminPreview)) return;
+  renderRestaurantProfilePreview(restaurant);
 
   const setValue = (id, value) => {
     const field = document.getElementById(id);
@@ -3094,7 +3853,8 @@ async function renderBusinessPanel() {
   }
   document.getElementById("panel-store-name").textContent = restaurant.nombre;
   document.getElementById("metric-status").textContent = restaurant.abierto ? "Abierto" : "Cerrado";
-  document.getElementById("metric-rating").textContent = restaurant.rating ? restaurant.rating.toFixed(1) : "Sin votos";
+  document.getElementById("metric-rating").textContent = Number(restaurant.votos) > 0
+    ? Number(restaurant.rating || 0).toFixed(1) : "Sin votos";
   setValue("panel-name", restaurant.nombre);
   setValue("panel-category", restaurant.categoria);
   setValue("panel-whatsapp", restaurant.whatsapp);
@@ -3942,10 +4702,12 @@ function initApp() {
     }, 30000);
   }
   bindNavigation();
+  setupBottomNavAutoHide();
   bindBusinessPanel();
   bindPideyaAdministration();
   if (document.body.dataset.page !== "panel") startBuyerOrderRefresh();
   renderCategories();
+  renderHomeBanners();
   renderRestaurants();
   renderRestaurantDetail();
   updateCartBadge();
@@ -3960,7 +4722,11 @@ function initApp() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const splashStarted = Date.now();
+  const maxSplash = window.setTimeout(dismissAppSplash, 5000);
+  try {
   initApp();
+  if (showAuthRedirectStatus()) showView("view-profile");
   refreshLocationUI();
   renderCart();
   if (supabaseClient) {
@@ -3972,6 +4738,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
   registerServiceWorker();
+  void loadHomeBanners();
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) return;
     if (merchantOrderMonitor.restaurantId) void refreshMerchantOrderMonitor();
@@ -3993,4 +4760,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderCart();
   }
   await loadAccountState();
+  } catch (error) {
+    console.error("Error en el inicio de Toque:", error.message || error);
+  } finally {
+    window.clearTimeout(maxSplash);
+    const remaining = Math.max(0, 650 - (Date.now() - splashStarted));
+    window.setTimeout(dismissAppSplash, remaining);
+  }
 });

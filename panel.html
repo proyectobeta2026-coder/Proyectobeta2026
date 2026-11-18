@@ -1,378 +1,381 @@
 <!DOCTYPE html>
+
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ff5a36" />
-    <title>Panel de comercio | RapiYa</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  </head>
-  <body data-page="panel">
-    <div class="app-container">
-      <section id="view-panel" class="view active">
-        <div id="panel-access-gate" class="login-container">
-          <span class="eyebrow">Comercios</span>
-          <h2>Acceso restringido</h2>
-          <p>Inicia sesión con una cuenta vinculada a un restaurante.</p>
-          <a class="secondary-btn" href="./index.html#profile">Ir a Perfil</a>
-        </div>
-        <div class="panel-shell" hidden>
-          <div class="panel-header">
-            <div>
-              <span class="eyebrow small">Panel comercio</span>
-              <h2 id="panel-store-name">Mi tienda</h2>
-            </div>
-            <button id="btn-logout-panel" class="panel-logout" type="button">Volver al perfil</button>
-          </div>
-
-          <div id="merchant-order-alert" class="merchant-order-alert" role="status" aria-live="polite" hidden>
-            <span class="merchant-alert-icon" aria-hidden="true"><i class="fa-solid fa-bell"></i></span>
-            <div class="merchant-alert-copy">
-              <strong id="merchant-order-alert-title">¡Nuevo pedido recibido!</strong>
-              <p id="merchant-order-alert-details"></p>
-            </div>
-            <button type="button" id="merchant-order-alert-view" class="merchant-alert-view">Ver</button>
-            <button type="button" id="merchant-order-alert-close" class="merchant-alert-close" aria-label="Cerrar aviso">×</button>
-          </div>
-
-          <div class="panel-summary grid-3">
-            <div class="metric-card">
-              <strong id="metric-status">Abierto</strong>
-              <span>Estado</span>
-            </div>
-            <div class="metric-card">
-              <strong id="metric-orders">+500</strong>
-              <span>Pedidos</span>
-            </div>
-            <div class="metric-card">
-              <strong id="metric-rating">4.8</strong>
-              <span>Rating</span>
-            </div>
-          </div>
-
-<details class="merchant-analytics" id="merchant-analytics" open>
-  <summary class="merchant-analytics-summary">
-    <span><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Estadísticas del restaurante</span>
-    <span class="merchant-analytics-fold">Ver / ocultar</span>
-  </summary>
-  <div class="merchant-analytics-body">
-    <p class="merchant-analytics-note">Datos reales de los pedidos registrados en PideYa. Los valores de pedidos entregados son <strong>estimados</strong>: PideYa no cobra ni confirma pagos.</p>
-    <div class="merchant-analytics-toolbar">
-      <label for="merchant-analytics-period">Periodo</label>
-      <select id="merchant-analytics-period">
-        <option value="hoy">Hoy</option>
-        <option value="7d">Últimos 7 días</option>
-        <option value="30d" selected>Últimos 30 días</option>
-        <option value="todo">Todo el historial</option>
-      </select>
-      <button class="secondary-btn" type="button" id="merchant-analytics-refresh">Actualizar</button>
-    </div>
-    <p id="merchant-analytics-status" class="merchant-analytics-status" role="status" aria-live="polite"></p>
-    <div id="merchant-analytics-content" class="merchant-analytics-content"></div>
-  </div>
-</details>
-
-          <form id="panel-form" class="panel-form">
-            <div class="field-group">
-              <label for="panel-name">Nombre del restaurante</label>
-              <input id="panel-name" type="text" maxlength="120" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-category">Categor�a</label>
-              <input id="panel-category" type="text" maxlength="80" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-whatsapp">WhatsApp</label>
-              <input id="panel-whatsapp" type="tel" maxlength="20" required />
-            </div>
-            <div class="split-row">
-              <div class="field-group">
-                <label for="panel-apertura">Apertura</label>
-                <input id="panel-apertura" type="time" required />
-              </div>
-              <div class="field-group">
-                <label for="panel-cierre">Cierre</label>
-                <input id="panel-cierre" type="time" required />
-              </div>
-            </div>
-                        <fieldset class="weekly-schedule">
-              <legend>Horario de atención por día</legend>
-              <label class="weekly-schedule-master">
-                <input type="checkbox" id="panel-weekly-enabled" />
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#ff5a36" name="theme-color"/>
+<title>Toque | Panel del restaurante</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="manifest.json" rel="manifest"/>
+<link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" referrerpolicy="no-referrer" rel="stylesheet"/>
+</head>
+<body data-page="panel">
+<div class="app-container">
+<section class="view active" id="view-panel">
+<div class="login-container" id="panel-access-gate">
+<span class="eyebrow">Comercios</span>
+<h2>Acceso restringido</h2>
+<p>Inicia sesión con una cuenta vinculada a un restaurante.</p>
+<a class="secondary-btn" href="./index.html#profile">Ir a Perfil</a>
+</div>
+<div class="panel-shell" hidden="">
+<div class="panel-header">
+<div>
+<span class="eyebrow small">Panel del restaurante</span>
+<h2 id="panel-store-name">Mi tienda</h2>
+</div>
+<button class="panel-logout" id="btn-logout-panel" type="button">Volver al perfil</button>
+</div>
+<section aria-label="Vista previa del perfil del restaurante" class="panel-profile-preview">
+<img alt="Portada del restaurante" class="panel-profile-cover" id="panel-profile-cover"/>
+<div class="panel-profile-info">
+<img alt="Logo del restaurante" class="panel-profile-logo" id="panel-profile-logo"/>
+<div class="panel-profile-copy">
+<span class="panel-profile-status" id="panel-profile-status">Abierto</span>
+<strong id="panel-profile-name">Mi tienda</strong>
+<p id="panel-profile-category">Categoría</p>
+</div>
+</div>
+</section>
+<div aria-live="polite" class="merchant-order-alert" hidden="" id="merchant-order-alert" role="status">
+<span aria-hidden="true" class="merchant-alert-icon"><i class="fa-solid fa-bell"></i></span>
+<div class="merchant-alert-copy">
+<strong id="merchant-order-alert-title">¡Nuevo pedido recibido!</strong>
+<p id="merchant-order-alert-details"></p>
+</div>
+<button class="merchant-alert-view" id="merchant-order-alert-view" type="button">Ver</button>
+<button aria-label="Cerrar aviso" class="merchant-alert-close" id="merchant-order-alert-close" type="button">×</button>
+</div>
+<nav aria-label="Accesos directos del restaurante" class="panel-shortcuts">
+<a href="#merchant-orders"><i aria-hidden="true" class="fa-solid fa-receipt"></i> Pedidos</a>
+<a href="#panel-products"><i aria-hidden="true" class="fa-solid fa-utensils"></i> Productos</a>
+<a href="#merchant-promotions"><i aria-hidden="true" class="fa-solid fa-tags"></i> Promociones</a>
+<a href="#merchant-analytics"><i aria-hidden="true" class="fa-solid fa-chart-simple"></i> Estadísticas</a>
+<button data-open-merchant-settings="" type="button"><i aria-hidden="true" class="fa-solid fa-gear"></i> Ajustes</button>
+</nav><div class="panel-summary grid-3">
+<div class="metric-card">
+<strong id="metric-status">—</strong>
+<span>Estado</span>
+</div>
+<div class="metric-card">
+<strong id="metric-orders">—</strong>
+<span>Pedidos registrados</span>
+</div>
+<div class="metric-card">
+<strong id="metric-rating">—</strong>
+<span>Calificación</span>
+</div>
+</div><section class="panel-orders">
+<div class="merchant-orders-heading">
+<div>
+<h3>Pedidos recibidos <span class="merchant-pending-badge" hidden="" id="merchant-pending-badge"></span></h3>
+<p class="merchant-orders-sync" id="merchant-orders-sync">Consultando pedidos...</p>
+</div>
+<div class="merchant-orders-actions">
+<button aria-pressed="false" class="secondary-btn" id="merchant-order-sound" type="button">Activar sonido</button>
+<button class="secondary-btn" id="merchant-orders-refresh" type="button">Actualizar</button>
+</div>
+</div>
+<div class="saved-items" id="merchant-orders"></div>
+</section><div class="panel-products-header">
+<h3>Productos</h3>
+<button class="secondary-btn" id="add-product-btn" type="button">+ Nuevo producto</button>
+</div><div class="panel-products" id="panel-products"></div><section aria-label="Cupones del restaurante" class="merchant-promotion-section" id="merchant-promotions">
+<h3><i aria-hidden="true" class="fa-solid fa-ticket"></i> Cupones y promociones</h3>
+<p class="upload-hint">Los descuentos los asume el restaurante. Toque no recibe pagos. Para promocionar un combo, créalo como producto en el menú.</p>
+<form class="merchant-promo-form" id="promo-form">
+<input id="promo-id" type="hidden"/>
+<div class="split-row">
+<div class="field-group"><label for="promo-code">Código del cupón</label><input autocomplete="off" id="promo-code" maxlength="24" pattern="[A-Za-z0-9_-]{4,24}" placeholder="DANNYS10" required=""/></div>
+<div class="field-group"><label for="promo-name">Nombre de la promoción</label><input id="promo-name" maxlength="100" placeholder="10% de bienvenida" required=""/></div>
+</div>
+<div class="split-row">
+<div class="field-group"><label for="promo-type">Tipo de descuento</label>
+<select id="promo-type"><option value="PORCENTAJE">Porcentaje (%)</option><option value="MONTO">Valor fijo ($)</option><option value="ENVIO_GRATIS">Domicilio gratis</option></select>
+</div>
+<div class="field-group"><label for="promo-value" id="promo-value-label">Descuento (%)</label><input id="promo-value" max="100" min="1" required="" step="1" type="number" value="10"/></div>
+</div>
+<div class="field-group"><label for="promo-min">Compra mínima del producto ($)</label><input id="promo-min" max="100000000" min="0" required="" step="1" type="number" value="0"/></div>
+<div class="split-row">
+<div class="field-group"><label for="promo-start">Vigente desde (opcional)</label><input id="promo-start" type="datetime-local"/></div>
+<div class="field-group"><label for="promo-end">Vigente hasta (opcional)</label><input id="promo-end" type="datetime-local"/></div>
+</div>
+<div class="split-row">
+<div class="field-group"><label for="promo-limit">Usos totales (vacío = sin límite)</label><input id="promo-limit" max="100000" min="1" placeholder="Sin límite" step="1" type="number"/></div>
+<div class="field-group"><label for="promo-user-limit">Usos por cliente (opcional)</label><input id="promo-user-limit" max="100" min="1" placeholder="Sin límite" step="1" type="number"/></div>
+</div>
+<label class="checkbox-field" for="promo-enabled"><input checked="" id="promo-enabled" type="checkbox"/> <span>Promoción activa</span></label>
+<p aria-live="polite" class="login-message" id="promo-form-status" role="status"></p>
+<div class="promo-buttons"><button class="primary-btn" id="promo-save" type="submit">Guardar cupón</button><button class="secondary-btn" id="promo-clear" type="button">Nuevo / limpiar</button></div>
+</form>
+<h4>Mis promociones</h4>
+<div aria-live="polite" class="merchant-promo-list" id="merchant-promo-list"></div>
+</section><details class="merchant-analytics" id="merchant-analytics" open="">
+<summary class="merchant-analytics-summary">
+<span><i aria-hidden="true" class="fa-solid fa-chart-column"></i> Estadísticas del restaurante</span>
+<span class="merchant-analytics-fold">Ver / ocultar</span>
+</summary>
+<div class="merchant-analytics-body">
+<p class="merchant-analytics-note">Datos reales de los pedidos registrados en Toque. Los valores de pedidos entregados son <strong>estimados</strong>: Toque no cobra ni confirma pagos.</p>
+<div class="merchant-analytics-toolbar">
+<label for="merchant-analytics-period">Periodo</label>
+<select id="merchant-analytics-period">
+<option value="hoy">Hoy</option>
+<option value="7d">Últimos 7 días</option>
+<option selected="" value="30d">Últimos 30 días</option>
+<option value="todo">Todo el historial</option>
+</select>
+<button class="secondary-btn" id="merchant-analytics-refresh" type="button">Actualizar</button>
+</div>
+<p aria-live="polite" class="merchant-analytics-status" id="merchant-analytics-status" role="status"></p>
+<div class="merchant-analytics-content" id="merchant-analytics-content"></div>
+</div>
+</details><details class="panel-settings" id="panel-settings"><summary><span><i aria-hidden="true" class="fa-solid fa-sliders"></i> Configuración del restaurante</span><small>Horarios, zonas, datos y medios de pago</small></summary><form class="panel-form" id="panel-form">
+<div class="field-group">
+<label for="panel-name">Nombre del restaurante</label>
+<input id="panel-name" maxlength="120" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-category">Categoría</label>
+<input id="panel-category" maxlength="80" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-whatsapp">WhatsApp</label>
+<input id="panel-whatsapp" maxlength="20" required="" type="tel"/>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-apertura">Apertura</label>
+<input id="panel-apertura" required="" type="time"/>
+</div>
+<div class="field-group">
+<label for="panel-cierre">Cierre</label>
+<input id="panel-cierre" required="" type="time"/>
+</div>
+</div>
+<fieldset class="weekly-schedule">
+<legend>Horario de atención por día</legend>
+<label class="weekly-schedule-master">
+<input id="panel-weekly-enabled" type="checkbox"/>
                 Activar horarios distintos según el día
               </label>
-              <p class="upload-hint">Si lo dejas desactivado se usa el horario general indicado arriba todos los días. Horarios en Colombia.</p>
-              <div id="panel-weekly-days" hidden>
-                  <div class="weekly-hour-row" data-weekday="lunes">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="lunes" checked />Lunes</label>
-                    <input type="time" data-day-open="lunes" aria-label="Apertura del Lunes" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="lunes" aria-label="Cierre del Lunes" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="martes">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="martes" checked />Martes</label>
-                    <input type="time" data-day-open="martes" aria-label="Apertura del Martes" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="martes" aria-label="Cierre del Martes" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="miercoles">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="miercoles" checked />Miércoles</label>
-                    <input type="time" data-day-open="miercoles" aria-label="Apertura del Miércoles" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="miercoles" aria-label="Cierre del Miércoles" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="jueves">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="jueves" checked />Jueves</label>
-                    <input type="time" data-day-open="jueves" aria-label="Apertura del Jueves" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="jueves" aria-label="Cierre del Jueves" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="viernes">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="viernes" checked />Viernes</label>
-                    <input type="time" data-day-open="viernes" aria-label="Apertura del Viernes" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="viernes" aria-label="Cierre del Viernes" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="sabado">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="sabado" checked />Sábado</label>
-                    <input type="time" data-day-open="sabado" aria-label="Apertura del Sábado" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="sabado" aria-label="Cierre del Sábado" value="22:00" />
-                  </div>
-                  <div class="weekly-hour-row" data-weekday="domingo">
-                    <label class="weekly-day-toggle"><input type="checkbox" data-day-enabled="domingo" checked />Domingo</label>
-                    <input type="time" data-day-open="domingo" aria-label="Apertura del Domingo" value="09:00" />
-                    <span class="weekly-time-dash">a</span>
-                    <input type="time" data-day-close="domingo" aria-label="Cierre del Domingo" value="22:00" />
-                  </div>
-                <small class="upload-hint">Para cerrar un día, desmarca su casilla. Se admiten horarios que pasan de medianoche (por ejemplo, 18:00 a 02:00).</small>
-              </div>
-            </fieldset>
-          <div class="split-row">
-              <div class="field-group">
-                <label for="panel-costo">Costo env�o</label>
-                <input id="panel-costo" type="number" min="0" max="100000000" step="1" required />
-              </div>
-              <div class="field-group">
-                <label for="panel-tiempo">Tiempo estimado</label>
-                <input id="panel-tiempo" type="text" maxlength="40" required />
-              </div>
-            </div>
-            <div class="field-group">
-              <label for="panel-zonas">Tarifas por barrios o sectores (opcional)</label>
-              <textarea id="panel-zonas" rows="4" maxlength="4000" placeholder="Centro|1000&#10;Barrio Norte|2500"></textarea>
-              <small>Una zona por línea: Nombre|Tarifa. Sin el signo $, ni separadores de miles. Si lo dejas vacío, se usa la tarifa general. Si configuras zonas, el cliente tendrá que elegir una de ellas.</small>
-            </div>
-            <div class="field-group">
-              <label for="panel-cobertura">Cobertura / municipio</label>
-              <input id="panel-cobertura" type="text" maxlength="100" required />
-            </div>
-            <div class="split-row">
-              <div class="field-group">
-                <label for="panel-pais">País</label>
-                <input id="panel-pais" type="text" maxlength="100" required />
-              </div>
-              <div class="field-group">
-                <label for="panel-departamento">Departamento</label>
-                <input id="panel-departamento" type="text" maxlength="100" required />
-              </div>
-            </div>
-            <div class="field-group">
-              <label for="panel-contacto">Responsable</label>
-              <input id="panel-contacto" type="text" maxlength="120" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-direccion">Dirección del restaurante</label>
-              <input id="panel-direccion" type="text" maxlength="400" required />
-            </div>
-            <div class="field-group">
-              <label for="panel-logo">URL HTTPS del logo (opcional)</label>
-              <input id="panel-logo" type="url" maxlength="2000" />
-              <label for="panel-logo-file">O subir logo desde tu equipo</label>
-              <input id="panel-logo-file" type="file" accept="image/jpeg,image/png,image/webp" />
-              <img id="panel-logo-preview" class="upload-preview" alt="Vista previa del logo" hidden />
-            </div>
-            <div class="field-group">
-              <label for="panel-portada">URL HTTPS de portada (opcional)</label>
-              <input id="panel-portada" type="url" maxlength="2000" />
-              <label for="panel-portada-file">O subir portada desde tu equipo</label>
-              <input id="panel-portada-file" type="file" accept="image/jpeg,image/png,image/webp" />
-              <img id="panel-portada-preview" class="upload-preview upload-preview-wide" alt="Vista previa de la portada" hidden />
-            </div>
-            <div class="split-row">
-              <div class="field-group">
-                <label for="panel-estado">Estado</label>
-                <select id="panel-estado">
-                  <option value="Automatico">Según horario</option>
-                  <option value="Abierto">Abierto</option>
-                  <option value="Cerrado">Cerrado</option>
-                </select>
-              </div>
-              <label class="field-group checkbox-field" for="panel-envio-gratis">
-                <span>Envío gratis</span>
-                <input id="panel-envio-gratis" type="checkbox" />
-              </label>
-            </div>
-                        <fieldset class="weekly-pause">
-              <legend>Pausa temporal de pedidos</legend>
-              <p id="panel-pause-status" class="upload-hint">Sin pausa activa.</p>
-              <div class="pause-buttons">
-                <button class="secondary-btn" type="button" data-pause-minutes="30">Pausar 30 min</button>
-                <button class="secondary-btn" type="button" data-pause-minutes="60">Pausar 60 min</button>
-                <button class="secondary-btn" type="button" data-pause-minutes="0">Reanudar</button>
-              </div>
-              <small class="upload-hint">La pausa se desactiva automáticamente. Si estableces Estado: Cerrado, el comercio seguirá cerrado hasta que cambies ese estado.</small>
-            </fieldset>
-          <div class="split-row">
-              <div class="field-group">
-                <label for="panel-lat">Latitud (opcional)</label>
-                <input id="panel-lat" type="number" step="any" min="-90" max="90" />
-              </div>
-              <div class="field-group">
-                <label for="panel-lng">Longitud (opcional)</label>
-                <input id="panel-lng" type="number" step="any" min="-180" max="180" />
-              </div>
-            </div>
-            <div class="field-group">
-              <label for="panel-radio">Radio de entrega (km, opcional)</label>
-              <input id="panel-radio" type="number" min="0.1" max="200" step="any" />
-            </div>
-            <p id="panel-message" class="login-message" aria-live="polite"></p>
-            <button class="primary-btn" type="submit">Guardar configuraci�n</button>
-          </form>
-
-
-
-<section id="merchant-payment-settings" class="merchant-payment-settings" aria-label="Medios de pago del restaurante">
-  <h3><i class="fa-solid fa-money-bill-transfer" aria-hidden="true"></i> Medios de pago del restaurante</h3>
-  <p class="upload-hint">El comprador paga directamente a tu negocio. PideYa no recauda dinero ni verifica transferencias. El efectivo siempre está disponible.</p>
-  <form id="merchant-payment-form" class="merchant-promo-form">
-    <label class="payment-enable"><input type="checkbox" id="merchant-transfer-enabled" /> Permitir pago por transferencia</label>
-    <div class="split-row">
-      <div class="field-group"><label for="merchant-transfer-provider">Entidad o billetera</label><input id="merchant-transfer-provider" type="text" maxlength="80" placeholder="Nequi, Daviplata, Bancolombia..." /></div>
-      <div class="field-group"><label for="merchant-transfer-number">Número de cuenta o celular</label><input id="merchant-transfer-number" type="text" maxlength="80" autocomplete="off" placeholder="Número donde recibes pagos" /></div>
-    </div>
-    <div class="field-group"><label for="merchant-transfer-holder">Titular (opcional)</label><input id="merchant-transfer-holder" type="text" maxlength="120" autocomplete="off" /></div>
-    <div class="field-group"><label for="merchant-transfer-instructions">Instrucciones para el comprador (opcional)</label><textarea id="merchant-transfer-instructions" maxlength="250" rows="2" placeholder="Confirma el pago directamente con nosotros"></textarea></div>
-    <p id="merchant-payment-status" class="login-message" role="status" aria-live="polite"></p>
-    <button id="merchant-payment-save" class="primary-btn" type="submit">Guardar medios de pago</button>
-  </form>
+<p class="upload-hint">Si lo dejas desactivado se usa el horario general indicado arriba todos los días. Horarios en Colombia.</p>
+<div hidden="" id="panel-weekly-days">
+<div class="weekly-hour-row" data-weekday="lunes">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="lunes" type="checkbox"/>Lunes</label>
+<input aria-label="Apertura del Lunes" data-day-open="lunes" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Lunes" data-day-close="lunes" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="martes">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="martes" type="checkbox"/>Martes</label>
+<input aria-label="Apertura del Martes" data-day-open="martes" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Martes" data-day-close="martes" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="miercoles">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="miercoles" type="checkbox"/>Miércoles</label>
+<input aria-label="Apertura del Miércoles" data-day-open="miercoles" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Miércoles" data-day-close="miercoles" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="jueves">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="jueves" type="checkbox"/>Jueves</label>
+<input aria-label="Apertura del Jueves" data-day-open="jueves" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Jueves" data-day-close="jueves" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="viernes">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="viernes" type="checkbox"/>Viernes</label>
+<input aria-label="Apertura del Viernes" data-day-open="viernes" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Viernes" data-day-close="viernes" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="sabado">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="sabado" type="checkbox"/>Sábado</label>
+<input aria-label="Apertura del Sábado" data-day-open="sabado" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Sábado" data-day-close="sabado" type="time" value="22:00"/>
+</div>
+<div class="weekly-hour-row" data-weekday="domingo">
+<label class="weekly-day-toggle"><input checked="" data-day-enabled="domingo" type="checkbox"/>Domingo</label>
+<input aria-label="Apertura del Domingo" data-day-open="domingo" type="time" value="09:00"/>
+<span class="weekly-time-dash">a</span>
+<input aria-label="Cierre del Domingo" data-day-close="domingo" type="time" value="22:00"/>
+</div>
+<small class="upload-hint">Para cerrar un día, desmarca su casilla. Se admiten horarios que pasan de medianoche (por ejemplo, 18:00 a 02:00).</small>
+</div>
+</fieldset>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-costo">Costo envío</label>
+<input id="panel-costo" max="100000000" min="0" required="" step="1" type="number"/>
+</div>
+<div class="field-group">
+<label for="panel-tiempo">Tiempo estimado</label>
+<input id="panel-tiempo" maxlength="40" required="" type="text"/>
+</div>
+</div>
+<div class="field-group">
+<label for="panel-zonas">Tarifas por barrios o sectores (opcional)</label>
+<textarea id="panel-zonas" maxlength="4000" placeholder="Centro|1000
+Barrio Norte|2500" rows="4"></textarea>
+<small>Una zona por línea: Nombre|Tarifa. Sin el signo $, ni separadores de miles. Si lo dejas vacío, se usa la tarifa general. Si configuras zonas, el cliente tendrá que elegir una de ellas.</small>
+</div>
+<div class="field-group">
+<label for="panel-cobertura">Cobertura / municipio</label>
+<input id="panel-cobertura" maxlength="100" required="" type="text"/>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-pais">País</label>
+<input id="panel-pais" maxlength="100" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-departamento">Departamento</label>
+<input id="panel-departamento" maxlength="100" required="" type="text"/>
+</div>
+</div>
+<div class="field-group">
+<label for="panel-contacto">Responsable</label>
+<input id="panel-contacto" maxlength="120" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-direccion">Dirección del restaurante</label>
+<input id="panel-direccion" maxlength="400" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="panel-logo">URL HTTPS del logo (opcional)</label>
+<input id="panel-logo" maxlength="2000" type="url"/>
+<label for="panel-logo-file">O subir logo desde tu equipo</label>
+<input accept="image/jpeg,image/png,image/webp" id="panel-logo-file" type="file"/>
+<img alt="Vista previa del logo" class="upload-preview" hidden="" id="panel-logo-preview"/>
+</div>
+<div class="field-group">
+<label for="panel-portada">URL HTTPS de portada (opcional)</label>
+<input id="panel-portada" maxlength="2000" type="url"/>
+<label for="panel-portada-file">O subir portada desde tu equipo</label>
+<input accept="image/jpeg,image/png,image/webp" id="panel-portada-file" type="file"/>
+<img alt="Vista previa de la portada" class="upload-preview upload-preview-wide" hidden="" id="panel-portada-preview"/>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-estado">Estado</label>
+<select id="panel-estado">
+<option value="Automatico">Según horario</option>
+<option value="Abierto">Abierto</option>
+<option value="Cerrado">Cerrado</option>
+</select>
+</div>
+<label class="field-group checkbox-field" for="panel-envio-gratis">
+<span>Envío gratis</span>
+<input id="panel-envio-gratis" type="checkbox"/>
+</label>
+</div>
+<fieldset class="weekly-pause">
+<legend>Pausa temporal de pedidos</legend>
+<p class="upload-hint" id="panel-pause-status">Sin pausa activa.</p>
+<div class="pause-buttons">
+<button class="secondary-btn" data-pause-minutes="30" type="button">Pausar 30 min</button>
+<button class="secondary-btn" data-pause-minutes="60" type="button">Pausar 60 min</button>
+<button class="secondary-btn" data-pause-minutes="0" type="button">Reanudar</button>
+</div>
+<small class="upload-hint">La pausa se desactiva automáticamente. Si estableces Estado: Cerrado, el comercio seguirá cerrado hasta que cambies ese estado.</small>
+</fieldset>
+<div class="split-row">
+<div class="field-group">
+<label for="panel-lat">Latitud (opcional)</label>
+<input id="panel-lat" max="90" min="-90" step="any" type="number"/>
+</div>
+<div class="field-group">
+<label for="panel-lng">Longitud (opcional)</label>
+<input id="panel-lng" max="180" min="-180" step="any" type="number"/>
+</div>
+</div>
+<div class="field-group">
+<label for="panel-radio">Radio de entrega (km, opcional)</label>
+<input id="panel-radio" max="200" min="0.1" step="any" type="number"/>
+</div>
+<p aria-live="polite" class="login-message" id="panel-message"></p>
+<button class="primary-btn" type="submit">Guardar configuración</button>
+</form><section aria-label="Medios de pago del restaurante" class="merchant-payment-settings" id="merchant-payment-settings">
+<h3><i aria-hidden="true" class="fa-solid fa-money-bill-transfer"></i> Medios de pago del restaurante</h3>
+<p class="upload-hint">El comprador paga directamente a tu negocio. Toque no recauda dinero ni verifica transferencias. El efectivo siempre está disponible.</p>
+<form class="merchant-promo-form" id="merchant-payment-form">
+<label class="payment-enable"><input id="merchant-transfer-enabled" type="checkbox"/> Permitir pago por transferencia</label>
+<div class="split-row">
+<div class="field-group"><label for="merchant-transfer-provider">Entidad o billetera</label><input id="merchant-transfer-provider" maxlength="80" placeholder="Nequi, Daviplata, Bancolombia..." type="text"/></div>
+<div class="field-group"><label for="merchant-transfer-number">Número de cuenta o celular</label><input autocomplete="off" id="merchant-transfer-number" maxlength="80" placeholder="Número donde recibes pagos" type="text"/></div>
+</div>
+<div class="field-group"><label for="merchant-transfer-holder">Titular (opcional)</label><input autocomplete="off" id="merchant-transfer-holder" maxlength="120" type="text"/></div>
+<div class="field-group"><label for="merchant-transfer-instructions">Instrucciones para el comprador (opcional)</label><textarea id="merchant-transfer-instructions" maxlength="250" placeholder="Confirma el pago directamente con nosotros" rows="2"></textarea></div>
+<p aria-live="polite" class="login-message" id="merchant-payment-status" role="status"></p>
+<button class="primary-btn" id="merchant-payment-save" type="submit">Guardar medios de pago</button>
+</form>
+</section></details>
+</div>
 </section>
-
-<section id="merchant-promotions" class="merchant-promotion-section" aria-label="Cupones del restaurante">
-  <h3><i class="fa-solid fa-ticket" aria-hidden="true"></i> Cupones y promociones</h3>
-  <p class="upload-hint">Los descuentos los asume el restaurante. PideYa no recibe pagos. Para promocionar un combo, créalo como producto en el menú.</p>
-  <form id="promo-form" class="merchant-promo-form">
-    <input type="hidden" id="promo-id" />
-    <div class="split-row">
-      <div class="field-group"><label for="promo-code">Código del cupón</label><input id="promo-code" required maxlength="24" pattern="[A-Za-z0-9_-]{4,24}" placeholder="DANNYS10" autocomplete="off" /></div>
-      <div class="field-group"><label for="promo-name">Nombre de la promoción</label><input id="promo-name" required maxlength="100" placeholder="10% de bienvenida" /></div>
-    </div>
-    <div class="split-row">
-      <div class="field-group"><label for="promo-type">Tipo de descuento</label>
-        <select id="promo-type"><option value="PORCENTAJE">Porcentaje (%)</option><option value="MONTO">Valor fijo ($)</option><option value="ENVIO_GRATIS">Domicilio gratis</option></select>
-      </div>
-      <div class="field-group"><label id="promo-value-label" for="promo-value">Descuento (%)</label><input id="promo-value" type="number" min="1" max="100" step="1" value="10" required /></div>
-    </div>
-    <div class="field-group"><label for="promo-min">Compra mínima del producto ($)</label><input id="promo-min" type="number" min="0" max="100000000" step="1" value="0" required /></div>
-    <div class="split-row">
-      <div class="field-group"><label for="promo-start">Vigente desde (opcional)</label><input id="promo-start" type="datetime-local" /></div>
-      <div class="field-group"><label for="promo-end">Vigente hasta (opcional)</label><input id="promo-end" type="datetime-local" /></div>
-    </div>
-    <div class="split-row">
-      <div class="field-group"><label for="promo-limit">Usos totales (vacío = sin límite)</label><input id="promo-limit" type="number" min="1" max="100000" step="1" placeholder="Sin límite" /></div>
-      <div class="field-group"><label for="promo-user-limit">Usos por cliente (opcional)</label><input id="promo-user-limit" type="number" min="1" max="100" step="1" placeholder="Sin límite" /></div>
-    </div>
-    <label class="checkbox-field" for="promo-enabled"><input id="promo-enabled" type="checkbox" checked /> <span>Promoción activa</span></label>
-    <p id="promo-form-status" class="login-message" role="status" aria-live="polite"></p>
-    <div class="promo-buttons"><button type="submit" class="primary-btn" id="promo-save">Guardar cupón</button><button type="button" class="secondary-btn" id="promo-clear">Nuevo / limpiar</button></div>
-  </form>
-  <h4>Mis promociones</h4>
-  <div id="merchant-promo-list" class="merchant-promo-list" aria-live="polite"></div>
-</section>
-
-          <div class="panel-products-header">
-            <h3>Productos</h3>
-            <button id="add-product-btn" class="secondary-btn" type="button">+ Nuevo plato</button>
-          </div>
-          <div id="panel-products" class="panel-products"></div>
-          <section class="panel-orders">
-            <div class="merchant-orders-heading">
-              <div>
-                <h3>Pedidos recibidos <span id="merchant-pending-badge" class="merchant-pending-badge" hidden></span></h3>
-                <p id="merchant-orders-sync" class="merchant-orders-sync">Consultando pedidos...</p>
-              </div>
-              <div class="merchant-orders-actions">
-                <button class="secondary-btn" type="button" id="merchant-order-sound" aria-pressed="false">Activar sonido</button>
-                <button class="secondary-btn" type="button" id="merchant-orders-refresh">Actualizar</button>
-              </div>
-            </div>
-            <div id="merchant-orders" class="saved-items"></div>
-          </section>
-        </div>
-      </section>
-    </div>
-
-    <dialog id="product-dialog" class="app-dialog">
-      <form id="product-form">
-        <h2 id="product-dialog-title">Nuevo producto</h2>
-        <input id="product-id" type="hidden" />
-        <div class="field-group">
-          <label for="product-name">Nombre</label>
-          <input id="product-name" type="text" maxlength="120" required />
-        </div>
-        <div class="field-group">
-          <label for="product-description">Descripción</label>
-          <textarea id="product-description" maxlength="1000"></textarea>
-        </div>
-        <div class="split-row">
-          <div class="field-group">
-            <label for="product-price">Precio de oferta</label>
-            <input id="product-price" type="number" min="1" max="100000000" step="1" required />
-          </div>
-          <div class="field-group">
-            <label for="product-previous-price">Precio normal</label>
-            <input id="product-previous-price" type="number" min="0" max="100000000" step="1" />
-          </div>
-        </div>
-        <div class="field-group">
-          <label for="product-category">Categoría</label>
-          <input id="product-category" type="text" maxlength="80" />
-        </div>
-        <fieldset class="merchant-customization-fields">
-          <legend>Personalización del producto (opcional)</legend>
-          <p class="upload-hint">Configura lo que el cliente puede elegir y cuánto cuesta cada adicional.</p>
-          <label for="product-sizes">Tamaños: uno por línea (Nombre|Precio adicional)</label>
-          <textarea id="product-sizes" rows="3" placeholder="Normal|0&#10;Grande|5000"></textarea>
-          <label for="product-extras">Extras: uno por línea (Nombre|Precio adicional)</label>
-          <textarea id="product-extras" rows="3" placeholder="Queso|2000&#10;Tocineta|3000"></textarea>
-          <label for="product-ingredients">Ingredientes que el cliente puede quitar (separados por coma)</label>
-          <textarea id="product-ingredients" rows="2" placeholder="Tomate, cebolla, lechuga"></textarea>
-        </fieldset>
-        <div class="field-group">
-          <label for="product-image">URL HTTPS de la foto (opcional)</label>
-          <input id="product-image" type="url" maxlength="2000" />
-          <label for="product-image-file">O subir foto desde tu equipo</label>
-          <input id="product-image-file" type="file" accept="image/jpeg,image/png,image/webp" />
-          <img id="product-image-preview" class="upload-preview" alt="Vista previa del producto" hidden />
-          <small class="upload-hint">JPG, PNG o WebP · máximo 5 MB. La imagen elegida reemplaza la URL al guardar.</small>
-        </div>
-        <label class="checkbox-field" for="product-available">
-          <span>Disponible para clientes</span>
-          <input id="product-available" type="checkbox" checked />
-        </label>
-        <p id="product-message" class="login-message" aria-live="polite"></p>
-        <div class="dialog-actions">
-          <button class="secondary-btn" type="button" data-close-dialog="product-dialog">Cancelar</button>
-          <button id="product-save" class="primary-btn" type="submit">Guardar producto</button>
-        </div>
-      </form>
-    </dialog>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="app.js"></script>
-  </body>
+</div>
+<dialog class="app-dialog" id="product-dialog">
+<form id="product-form">
+<h2 id="product-dialog-title">Nuevo producto</h2>
+<input id="product-id" type="hidden"/>
+<div class="field-group">
+<label for="product-name">Nombre</label>
+<input id="product-name" maxlength="120" required="" type="text"/>
+</div>
+<div class="field-group">
+<label for="product-description">Descripción</label>
+<textarea id="product-description" maxlength="1000"></textarea>
+</div>
+<div class="split-row">
+<div class="field-group">
+<label for="product-price">Precio de oferta</label>
+<input id="product-price" max="100000000" min="1" required="" step="1" type="number"/>
+</div>
+<div class="field-group">
+<label for="product-previous-price">Precio normal</label>
+<input id="product-previous-price" max="100000000" min="0" step="1" type="number"/>
+</div>
+</div>
+<div class="field-group">
+<label for="product-category">Categoría</label>
+<input id="product-category" maxlength="80" type="text"/>
+</div>
+<fieldset class="merchant-customization-fields">
+<legend>Personalización del producto (opcional)</legend>
+<p class="upload-hint">Configura lo que el cliente puede elegir y cuánto cuesta cada adicional.</p>
+<label for="product-sizes">Tamaños: uno por línea (Nombre|Precio adicional)</label>
+<textarea id="product-sizes" placeholder="Normal|0
+Grande|5000" rows="3"></textarea>
+<label for="product-extras">Extras: uno por línea (Nombre|Precio adicional)</label>
+<textarea id="product-extras" placeholder="Queso|2000
+Tocineta|3000" rows="3"></textarea>
+<label for="product-ingredients">Ingredientes que el cliente puede quitar (separados por coma)</label>
+<textarea id="product-ingredients" placeholder="Tomate, cebolla, lechuga" rows="2"></textarea>
+</fieldset>
+<div class="field-group">
+<label for="product-image">URL HTTPS de la foto (opcional)</label>
+<input id="product-image" maxlength="2000" type="url"/>
+<label for="product-image-file">O subir foto desde tu equipo</label>
+<input accept="image/jpeg,image/png,image/webp" id="product-image-file" type="file"/>
+<img alt="Vista previa del producto" class="upload-preview" hidden="" id="product-image-preview"/>
+<small class="upload-hint">JPG, PNG o WebP · máximo 5 MB. La imagen elegida reemplaza la URL al guardar.</small>
+</div>
+<label class="checkbox-field" for="product-available">
+<span>Disponible para clientes</span>
+<input checked="" id="product-available" type="checkbox"/>
+</label>
+<p aria-live="polite" class="login-message" id="product-message"></p>
+<div class="dialog-actions">
+<button class="secondary-btn" data-close-dialog="product-dialog" type="button">Cancelar</button>
+<button class="primary-btn" id="product-save" type="submit">Guardar producto</button>
+</div>
+</form>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="app.js"></script>
+</body>
 </html>
