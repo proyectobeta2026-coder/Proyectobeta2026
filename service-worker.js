@@ -1,4 +1,4 @@
-const CACHE_NAME = "rapiya-v9";
+const CACHE_NAME = "rapiya-v27";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,7 +6,6 @@ const ASSETS = [
   "./style.css",
   "./app.js",
   "./supabase-config.js",
-  "./supabase-accounts.sql",
   "./manifest.json"
 ];
 
